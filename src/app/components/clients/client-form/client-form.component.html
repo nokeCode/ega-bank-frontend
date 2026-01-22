@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Client Forme</title>
+</head>
+<body>
+<app-navbar></app-navbar>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="fas fa-user me-2"></i>
+            {{ isEditMode ? 'Modifier le Client' : 'Nouveau Client' }}
+          </h4>
+        </div>
+        <div class="card-body">
+          <div *ngIf="errorMessage" class="alert alert-danger">
+            {{ errorMessage }}
+          </div>
+
+          <form (ngSubmit)="onSubmit()" #clientForm="ngForm">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nom" class="form-label">Nom *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="nom"
+                  name="nom"
+                  [(ngModel)]="client.nom"
+                  required
+                  minlength="2"
+                >
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="prenom" class="form-label">Prénom *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="prenom"
+                  name="prenom"
+                  [(ngModel)]="client.prenom"
+                  required
+                  minlength="2"
+                >
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="dateNaissance" class="form-label">Date de Naissance *</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="dateNaissance"
+                  name="dateNaissance"
+                  [(ngModel)]="client.dateNaissance"
+                  required
+                >
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="sexe" class="form-label">Sexe *</label>
+                <select
+                  class="form-select"
+                  id="sexe"
+                  name="sexe"
+                  [(ngModel)]="client.sexe"
+                  required
+                >
+                  <option value="MASCULIN">Masculin</option>
+                  <option value="FEMININ">Féminin</option>
+                  <option value="AUTRE">Autre</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="adresse" class="form-label">Adresse *</label>
+              <textarea
+                class="form-control"
+                id="adresse"
+                name="adresse"
+                [(ngModel)]="client.adresse"
+                rows="2"
+                required
+              ></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="numeroTelephone" class="form-label">Numéro de Téléphone *</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="numeroTelephone"
+                  name="numeroTelephone"
+                  [(ngModel)]="client.numeroTelephone"
+                  required
+                  pattern="^\+?[0-9]{8,15}$"
+                  placeholder="+22890123456"
+                >
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="courriel" class="form-label">Email *</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="courriel"
+                  name="courriel"
+                  [(ngModel)]="client.courriel"
+                  required
+                  email
+                >
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="nationalite" class="form-label">Nationalité *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="nationalite"
+                name="nationalite"
+                [(ngModel)]="client.nationalite"
+                required
+              >
+            </div>
+
+            <div class="d-flex gap-2">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="!clientForm.valid || isLoading"
+              >
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isLoading" class="fas fa-save me-2"></i>
+                {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                routerLink="/clients"
+              >
+                <i class="fas fa-times me-2"></i>Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

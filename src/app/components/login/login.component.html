@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="login-container">
+  <div class="login-card">
+    <div class="text-center mb-4">
+      <h1 class="h3 mb-3 fw-bold">Banque EGA</h1>
+      <p class="text-muted">Connectez-vous à votre compte</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="mb-3">
+        <label for="username" class="form-label">Nom d'utilisateur</label>
+        <input
+          type="text"
+          class="form-control"
+          id="username"
+          name="username"
+          [(ngModel)]="loginData.username"
+          required
+          placeholder="Entrez votre nom d'utilisateur"
+        >
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          name="password"
+          [(ngModel)]="loginData.password"
+          required
+          placeholder="Entrez votre mot de passe"
+        >
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="!loginForm.valid || isLoading"
+      >
+        <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+        {{ isLoading ? 'Connexion...' : 'Se connecter' }}
+      </button>
+    </form>
+
+    <div class="text-center mt-3">
+      <p class="mb-0">Pas encore de compte ?
+        <a routerLink="/register" class="text-decoration-none">S'inscrire</a>
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
