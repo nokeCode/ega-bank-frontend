@@ -1,69 +1,370 @@
 <app-navbar></app-navbar>
 
-<div class="container mt-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="fas fa-users me-2"></i>Liste des Clients</h2>
-    <button class="btn btn-primary" routerLink="/clients/new">
-      <i class="fas fa-plus me-2"></i>Nouveau Client
-    </button>
-  </div>
-
-  <div *ngIf="errorMessage" class="alert alert-danger">
-    {{ errorMessage }}
-  </div>
-
-  <div *ngIf="isLoading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Chargement...</span>
+<div class="clients-container">
+  <!-- En-tête avec statistiques -->
+  <div class="clients-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="title-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="title-text">
+          <h1>Gestion des Clients</h1>
+          <p class="subtitle">Gérez votre portefeuille clients bancaire</p>
+        </div>
+      </div>
+      
+      <div class="header-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-user-check"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ totalClients || clients.length }}</span>
+            <span class="stat-label">Clients actifs</span>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-wallet"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ activeAccounts || '0' }}</span>
+            <span class="stat-label">Comptes ouverts</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div *ngIf="!isLoading && clients.length === 0" class="alert alert-info">
-    <i class="fas fa-info-circle me-2"></i>Aucun client trouvé.
-    <a routerLink="/clients/new" class="alert-link">Créer le premier client</a>
-  </div>
-
-  <div *ngIf="!isLoading && clients.length > 0" class="card">
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Nom Complet</th>
-            <th>Email</th>
-            <th>Téléphone</th>
-            <th>Date Naissance</th>
-            <th>Nationalité</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let client of clients">
-            <td>{{ client.id }}</td>
-            <td>{{ client.prenom }} {{ client.nom }}</td>
-            <td>{{ client.courriel }}</td>
-            <td>{{ client.numeroTelephone }}</td>
-            <td>{{ client.dateNaissance | date:'dd/MM/yyyy' }}</td>
-            <td>{{ client.nationalite }}</td>
-            <td>
-              <button
-                class="btn btn-sm btn-warning me-2"
-                (click)="editClient(client.id!)"
-                title="Modifier">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button
-                class="btn btn-sm btn-danger"
-                (click)="deleteClient(client.id!)"
-                title="Supprimer">
-                <i class="fas fa-trash"></i>
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+  <!-- Contenu principal -->
+  <div class="clients-content">
+    <!-- Barre d'actions -->
+    <div class="action-bar">
+      <div class="search-section">
+        <div class="search-input-group">
+          <i class="fas fa-search search-icon"></i>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Rechercher un client..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()">
+          <button class="search-clear" *ngIf="searchTerm" (click)="clearSearch()" title="Effacer la recherche">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="filter-buttons">
+          <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="filterClients('all')">
+            Tous
+          </button>
+          <button class="filter-btn" [class.active]="activeFilter === 'recent'" (click)="filterClients('recent')">
+            Récents
+          </button>
+          <button class="filter-btn" [class.active]="activeFilter === 'vip'" (click)="filterClients('vip')">
+            VIP
+          </button>
+        </div>
       </div>
+      
+      <a routerLink="/clients/new" class="add-client-btn">
+        <i class="fas fa-user-plus"></i>
+        <span>Nouveau Client</span>
+      </a>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alerts-container">
+      <div *ngIf="errorMessage" class="alert-card error">
+        <div class="alert-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Erreur</h4>
+          <p>{{ errorMessage }}</p>
+        </div>
+        <button class="alert-close" (click)="errorMessage = ''" title="Fermer l'alerte">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div *ngIf="successMessage" class="alert-card success">
+        <div class="alert-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Succès</h4>
+          <p>{{ successMessage }}</p>
+        </div>
+        <button class="alert-close" (click)="successMessage = ''" title="Fermer l'alerte">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- État de chargement -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">
+          <h3>Chargement des clients</h3>
+          <p>Veuillez patienter pendant le chargement des données...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- État vide -->
+    <div *ngIf="!isLoading && filteredClients.length === 0 && !errorMessage" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-users-slash"></i>
+      </div>
+      <div class="empty-content">
+        <h3>Aucun client trouvé</h3>
+        <p *ngIf="searchTerm">Aucun résultat pour "{{ searchTerm }}"</p>
+        <p *ngIf="!searchTerm">Commencez par ajouter votre premier client</p>
+        <a routerLink="/clients/new" class="empty-action-btn">
+          <i class="fas fa-user-plus me-2"></i>
+          Créer un client
+        </a>
+      </div>
+    </div>
+
+    <!-- Table des clients -->
+    <div *ngIf="!isLoading && filteredClients.length > 0" class="clients-table-container">
+      <div class="table-card">
+        <!-- En-tête de table -->
+        <div class="table-header">
+          <div class="table-info">
+            <h3>Liste des Clients</h3>
+            <p class="table-count">{{ filteredClients.length }} client(s) trouvé(s)</p>
+          </div>
+          <div class="table-actions">
+            <button class="export-btn" (click)="exportClients()">
+              <i class="fas fa-download me-2"></i>
+              Exporter
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+          <table class="clients-table">
+            <thead>
+              <tr>
+                <th class="column-checkbox">
+                  <input type="checkbox" class="select-all" title="Sélectionner tous">
+                </th>
+                <th class="column-name">Client</th>
+                <th class="column-contact">Contact</th>
+                <th class="column-info">Informations</th>
+                <th class="column-status">Statut</th>
+                <th class="column-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let client of filteredClients" 
+                  [class.selected]="isSelected(client.id!)"
+                  [class.vip-client]="client.vip"
+                  class="client-row">
+                
+                <td class="column-checkbox">
+                  <input type="checkbox" 
+                         [checked]="isSelected(client.id!)"
+                         (change)="toggleSelect(client.id!)"
+                         title="Sélectionner ce client">>
+                </td>
+                
+                <td class="column-name">
+                  <div class="client-avatar">
+                    <div class="avatar-circle" [style.background]="getAvatarColor(client)">
+                      {{ getInitials(client) }}
+                    </div>
+                    <div class="vip-badge" *ngIf="client.vip">
+                      <i class="fas fa-crown"></i>
+                    </div>
+                  </div>
+                  <div class="client-info">
+                    <h4 class="client-name">{{ client.prenom }} {{ client.nom }}</h4>
+                    <p class="client-id">ID: {{ client.id }}</p>
+                  </div>
+                </td>
+                
+                <td class="column-contact">
+                  <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a [href]="'mailto:' + client.courriel" class="contact-link">
+                      {{ client.courriel }}
+                    </a>
+                  </div>
+                  <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <span class="contact-text">{{ client.numeroTelephone }}</span>
+                  </div>
+                </td>
+                
+                <td class="column-info">
+                  <div class="info-grid">
+                    <div class="info-item">
+                      <span class="info-label">Naissance</span>
+                      <span class="info-value">{{ client.dateNaissance | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Nationalité</span>
+                      <span class="info-value">{{ client.nationalite }}</span>
+                    </div>
+                    <div class="info-item">
+                      <span class="info-label">Comptes</span>
+                      <span class="info-value">{{ client.comptes?.length || 0 }}</span>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="column-status">
+                  <div class="status-badge" [class.active]="client.active">
+                    {{ client.active ? 'Actif' : 'Inactif' }}
+                  </div>
+                  <div class="last-update">
+                    Dernière activité: {{ client.lastActivity || 'Aujourd\'hui' }}
+                  </div>
+                </td>
+                
+                <td class="column-actions">
+                  <div class="action-buttons">
+                    <button class="action-btn view-btn" 
+                            (click)="viewClientDetails(client.id!, $event)"
+                            title="Voir détails">
+                      <i class="fas fa-eye"></i>
+                      <span class="tooltip">Voir détails</span>
+                    </button>
+                    <button class="action-btn edit-btn" 
+                            (click)="editClient(client.id!)"
+                            title="Modifier">
+                      <i class="fas fa-edit"></i>
+                      <span class="tooltip">Modifier</span>
+                    </button>
+                    <div class="action-dropdown">
+                      <button class="action-btn more-btn" 
+                              (click)="toggleClientActions(client.id!)"
+                              title="Plus d'actions (transactions, créer compte, supprimer)">
+                        <i class="fas fa-ellipsis-v"></i>
+                        <span class="tooltip">Plus d'actions</span>
+                      </button>
+                      <div class="dropdown-menu" *ngIf="expandedActionsClientId === client.id" (click)="$event.stopPropagation()">
+                        <button class="dropdown-item transaction-item"
+                                (click)="createTransactionForClient(client.id!, $event)">
+                          <i class="fas fa-exchange-alt me-2"></i>
+                          Nouvelle transaction
+                        </button>
+                        <button class="dropdown-item account-item"
+                                (click)="createAccountForClient(client.id!, $event)">
+                          <i class="fas fa-plus-circle me-2"></i>
+                          Créer un compte
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item delete-item"
+                                (click)="confirmDelete(client); toggleClientActions(client.id!)">
+                          <i class="fas fa-trash me-2"></i>
+                          Supprimer
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="table-footer">
+          <div class="footer-info">
+            <span>Afficher</span>
+            <select class="page-size-select" title="Nombre d'entrées par page">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select>
+            <span>entrées</span>
+          </div>
+          
+          <div class="pagination">
+            <button class="pagination-btn" [disabled]="currentPage === 1" title="Page précédente">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div class="page-numbers">
+              <button class="page-btn" *ngFor="let page of getPages()" 
+                      [class.active]="page === currentPage"
+                      (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            </div>
+            
+            <button class="pagination-btn" [disabled]="currentPage === totalPages" title="Page suivante">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de suppression -->
+<div *ngIf="showDeleteModal" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+        Confirmer la suppression
+      </h3>
+      <button class="modal-close" (click)="closeDeleteModal()" title="Fermer le modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer le client <strong>{{ clientToDelete?.prenom }} {{ clientToDelete?.nom }}</strong> ?</p>
+      <p class="text-muted">Cette action est irréversible et supprimera également tous les comptes associés.</p>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeDeleteModal()">
+        Annuler
+      </button>
+      <button class="btn-delete" (click)="deleteClient()">
+        <i class="fas fa-trash me-2"></i>
+        Supprimer définitivement
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="quick-stats" *ngIf="showQuickStats">
+  <div class="stats-card">
+    <div class="stats-icon">
+      <i class="fas fa-user-plus"></i>
+    </div>
+    <div class="stats-content">
+      <span class="stats-value">+{{ newClientsThisMonth }}</span>
+      <span class="stats-label">Nouveaux ce mois</span>
+    </div>
+  </div>
+  
+  <div class="stats-card">
+    <div class="stats-icon">
+      <i class="fas fa-chart-line"></i>
+    </div>
+    <div class="stats-content">
+      <span class="stats-value">{{ growthRate }}%</span>
+      <span class="stats-label">Croissance</span>
     </div>
   </div>
 </div>

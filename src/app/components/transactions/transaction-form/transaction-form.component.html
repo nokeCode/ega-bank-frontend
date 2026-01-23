@@ -1,10 +1,718 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<app-navbar></app-navbar>
+
+<div class="transaction-form-container">
+  <!-- En-tête -->
+  <div class="transaction-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="title-icon">
+          <i class="fas fa-exchange-alt"></i>
+        </div>
+        <div class="title-text">
+          <h1>Nouvelle Transaction</h1>
+          <p class="subtitle">Effectuez des opérations bancaires en toute sécurité</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="transaction-content">
+    <div class="form-wrapper">
+      <!-- Badge client présélectionné -->
+      <div class="client-badge" *ngIf="selectedClientId">
+        <i class="fas fa-user-circle"></i>
+        <span>Opération pour le client #{{ selectedClientId }}</span>
+      </div>
+
+      <!-- Panneau de type -->
+      <div class="type-panel">
+        <div class="panel-header">
+          <h3>
+            <i class="fas fa-sliders-h me-2"></i>
+            Type de Transaction
+          </h3>
+        </div>
+        <div class="panel-body">
+          <div class="type-selection">
+            <div class="type-options">
+              <div class="type-option" (click)="transactionType = 'DEPOT'" [class.selected]="transactionType === 'DEPOT'">
+                <div class="option-icon deposit">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+                <div class="option-content">
+                  <h4>Dépôt</h4>
+                  <p>Ajouter des fonds sur un compte</p>
+                </div>
+                <div class="option-check">
+                  <i class="fas fa-check"></i>
+                </div>
+              </div>
+              
+              <div class="type-option" (click)="transactionType = 'RETRAIT'" [class.selected]="transactionType === 'RETRAIT'">
+                <div class="option-icon withdrawal">
+                  <i class="fas fa-arrow-up"></i>
+                </div>
+                <div class="option-content">
+                  <h4>Retrait</h4>
+                  <p>Retirer des fonds d'un compte</p>
+                </div>
+                <div class="option-check">
+                  <i class="fas fa-check"></i>
+                </div>
+              </div>
+              
+              <div class="type-option" (click)="transactionType = 'VIREMENT'" [class.selected]="transactionType === 'VIREMENT'">
+                <div class="option-icon transfer">
+                  <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="option-content">
+                  <h4>Virement</h4>
+                  <p>Transférer entre comptes</p>
+                </div>
+                <div class="option-check">
+                  <i class="fas fa-check"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages d'alerte -->
+      <div class="alerts-container">
+        <div *ngIf="errorMessage" class="alert-card error">
+          <div class="alert-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="alert-content">
+            <h4>Erreur</h4>
+            <p>{{ errorMessage }}</p>
+          </div>
+          <button class="alert-close" (click)="errorMessage = ''" title="Fermer l'alerte">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <div *ngIf="successMessage" class="alert-card success">
+          <div class="alert-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="alert-content">
+            <h4>Succès</h4>
+            <p>{{ successMessage }}</p>
+          </div>
+          <button class="alert-close" (click)="successMessage = ''" title="Fermer l'alerte">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Formulaires -->
+      <div class="forms-container">
+        <!-- Form Dépôt -->
+        <div *ngIf="transactionType === 'DEPOT'" class="transaction-form">
+          <div class="form-header">
+            <div class="form-title">
+              <div class="title-icon deposit">
+                <i class="fas fa-arrow-down"></i>
+              </div>
+              <h2>Formulaire de Dépôt</h2>
+            </div>
+            <div class="form-steps">
+              <span class="step active">1. Sélection</span>
+              <span class="step">2. Détails</span>
+              <span class="step">3. Confirmation</span>
+            </div>
+          </div>
+          
+          <form (ngSubmit)="onSubmit()" #depotForm="ngForm" class="form-body">
+            <div class="form-section">
+              <div class="section-header">
+                <h3>
+                  <i class="fas fa-wallet me-2"></i>
+                  Informations du compte
+                </h3>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-credit-card me-2"></i>
+                  Compte destinataire *
+                </label>
+                <div class="select-wrapper">
+                  <select class="form-select" 
+                          name="numeroCompte" 
+                          [(ngModel)]="depotData.numeroCompte"
+                          title="Sélectionner un compte"
+                          required>
+                    <option value="">Sélectionnez un compte</option>
+                    <option *ngFor="let account of accounts" [value]="account.numeroCompte">
+                      {{ account.numeroCompte }} - {{ account.proprietaireNom }}
+                    </option>
+                  </select>
+                  <i class="fas fa-chevron-down select-arrow"></i>
+                </div>
+                <div class="form-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Le compte sélectionné recevra le montant du dépôt
+                </div>
+              </div>
+              
+              <div *ngIf="getSelectedAccount(depotData.numeroCompte)" class="account-preview">
+                <div class="preview-header">
+                  <i class="fas fa-eye"></i>
+                  <span>Aperçu du compte</span>
+                </div>
+                <div class="preview-content">
+                  <div class="preview-item">
+                    <span class="label">Solde actuel</span>
+                    <span class="value">{{ getSelectedAccount(depotData.numeroCompte)?.solde | number:'1.0-0' }} FCFA</span>
+                  </div>
+                  <div class="preview-item">
+                    <span class="label">Type</span>
+                    <span class="value">{{ getSelectedAccount(depotData.numeroCompte)?.typeCompte === 'COMPTE_EPARGNE' ? 'Épargne' : 'Courant' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="section-header">
+                <h3>
+                  <i class="fas fa-money-bill-wave me-2"></i>
+                  Détails du dépôt
+                </h3>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-coins me-2"></i>
+                  Montant à déposer *
+                </label>
+                <div class="input-group">
+                  <span class="input-prefix">FCFA</span>
+                  <input type="number" 
+                         class="form-input" 
+                         name="montant" 
+                         [(ngModel)]="depotData.montant"
+                         required 
+                         min="1"
+                         placeholder="Entrez le montant">
+                  <div class="input-actions">
+                    <button type="button" class="amount-btn" (click)="setAmount(10000)">10k</button>
+                    <button type="button" class="amount-btn" (click)="setAmount(50000)">50k</button>
+                    <button type="button" class="amount-btn" (click)="setAmount(100000)">100k</button>
+                  </div>
+                </div>
+                <div class="form-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Montant minimum : 1 FCFA
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-align-left me-2"></i>
+                  Description
+                </label>
+                <textarea class="form-textarea" 
+                          name="description" 
+                          [(ngModel)]="depotData.description"
+                          rows="3"
+                          placeholder="Description du dépôt (optionnel)"></textarea>
+                <div class="char-count">
+                  {{ depositDescription.length || 0 }}/255 caractères
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="summary-card">
+                <div class="summary-header">
+                  <h4>Récapitulatif</h4>
+                </div>
+                <div class="summary-body">
+                  <div class="summary-item">
+                    <span class="label">Type</span>
+                    <span class="value deposit">Dépôt</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Compte</span>
+                    <span class="value">{{ depotData.numeroCompte || 'Non sélectionné' }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Montant</span>
+                    <span class="value">{{ depotData.montant || 0 | number:'1.0-0' }} FCFA</span>
+                  </div>
+                  <div class="summary-item total">
+                    <span class="label">Nouveau solde</span>
+                    <span class="value">{{ calculateNewBalance('depot') | number:'1.0-0' }} FCFA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" routerLink="/transactions">
+                <i class="fas fa-times me-2"></i>
+                Annuler
+              </button>
+              <button type="submit" class="btn-submit deposit" [disabled]="!depotForm.valid || isLoading">
+                <div class="btn-content">
+                  <span *ngIf="isLoading" class="spinner"></span>
+                  <i *ngIf="!isLoading" class="fas fa-arrow-down me-2"></i>
+                  <span>Effectuer le dépôt</span>
+                </div>
+                <div class="btn-hint">
+                  {{ depotData.montant || 0 | number:'1.0-0' }} FCFA
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Form Retrait -->
+        <div *ngIf="transactionType === 'RETRAIT'" class="transaction-form">
+          <div class="form-header">
+            <div class="form-title">
+              <div class="title-icon withdrawal">
+                <i class="fas fa-arrow-up"></i>
+              </div>
+              <h2>Formulaire de Retrait</h2>
+            </div>
+            <div class="form-steps">
+              <span class="step active">1. Sélection</span>
+              <span class="step">2. Détails</span>
+              <span class="step">3. Confirmation</span>
+            </div>
+          </div>
+          
+          <form (ngSubmit)="onSubmit()" #retraitForm="ngForm" class="form-body">
+            <div class="form-section">
+              <div class="section-header">
+                <h3>
+                  <i class="fas fa-wallet me-2"></i>
+                  Informations du compte
+                </h3>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-credit-card me-2"></i>
+                  Compte source *
+                </label>
+                <div class="select-wrapper">
+                  <select class="form-select" 
+                          name="numeroCompte" 
+                          [(ngModel)]="retraitData.numeroCompte"
+                          title="Sélectionner un compte"
+                          required>
+                    <option value="">Sélectionnez un compte</option>
+                    <option *ngFor="let account of accounts" [value]="account.numeroCompte">
+                      {{ account.numeroCompte }} - {{ account.proprietaireNom }}
+                    </option>
+                  </select>
+                  <i class="fas fa-chevron-down select-arrow"></i>
+                </div>
+                <div class="form-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Le compte sélectionné sera débité du montant du retrait
+                </div>
+              </div>
+              
+              <div *ngIf="getSelectedAccount(retraitData.numeroCompte)" class="account-preview">
+                <div class="preview-header">
+                  <i class="fas fa-eye"></i>
+                  <span>Aperçu du compte</span>
+                </div>
+                <div class="preview-content">
+                  <div class="preview-item">
+                    <span class="label">Solde disponible</span>
+                    <span class="value">{{ getSelectedAccount(retraitData.numeroCompte)?.solde | number:'1.0-0' }} FCFA</span>
+                  </div>
+                  <div class="preview-item">
+                    <span class="label">Type</span>
+                    <span class="value">{{ getSelectedAccount(retraitData.numeroCompte)?.typeCompte === 'COMPTE_EPARGNE' ? 'Épargne' : 'Courant' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="section-header">
+                <h3>
+                  <i class="fas fa-money-bill-wave me-2"></i>
+                  Détails du retrait
+                </h3>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-coins me-2"></i>
+                  Montant à retirer *
+                </label>
+                <div class="input-group">
+                  <span class="input-prefix">FCFA</span>
+                  <input type="number" 
+                         class="form-input" 
+                         name="montant" 
+                         [(ngModel)]="retraitData.montant"
+                         required 
+                         min="1"
+                         [max]="getSelectedAccount(retraitData.numeroCompte)?.solde || 0"
+                         placeholder="Entrez le montant">
+                  <div class="input-actions">
+                    <button type="button" class="amount-btn" (click)="setAmount(5000)">5k</button>
+                    <button type="button" class="amount-btn" (click)="setAmount(20000)">20k</button>
+                    <button type="button" class="amount-btn" (click)="setMaxAmount()">Max</button>
+                  </div>
+                </div>
+                <div class="form-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Solde disponible : {{ getSelectedAccount(retraitData.numeroCompte)?.solde || 0 | number:'1.0-0' }} FCFA
+                </div>
+              </div>
+              
+              <div *ngIf="retraitData.montant > (getSelectedAccount(retraitData.numeroCompte)?.solde || 0)" class="alert-card warning">
+                <div class="alert-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                  <h4>Solde insuffisant</h4>
+                  <p>Le montant demandé dépasse le solde disponible.</p>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-align-left me-2"></i>
+                  Description
+                </label>
+                <textarea class="form-textarea" 
+                          name="description" 
+                          [(ngModel)]="retraitData.description"
+                          rows="3"
+                          placeholder="Description du retrait (optionnel)"></textarea>
+                <div class="char-count">
+                  {{ withdrawalDescription.length || 0 }}/255 caractères
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="summary-card">
+                <div class="summary-header">
+                  <h4>Récapitulatif</h4>
+                </div>
+                <div class="summary-body">
+                  <div class="summary-item">
+                    <span class="label">Type</span>
+                    <span class="value withdrawal">Retrait</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Compte</span>
+                    <span class="value">{{ retraitData.numeroCompte || 'Non sélectionné' }}</span>
+                  </div>
+                  <div class="summary-item">
+                    <span class="label">Montant</span>
+                    <span class="value">{{ retraitData.montant || 0 | number:'1.0-0' }} FCFA</span>
+                  </div>
+                  <div class="summary-item total">
+                    <span class="label">Nouveau solde</span>
+                    <span class="value">{{ calculateNewBalance('retrait') | number:'1.0-0' }} FCFA</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" routerLink="/transactions">
+                <i class="fas fa-times me-2"></i>
+                Annuler
+              </button>
+              <button type="submit" class="btn-submit withdrawal" 
+                      [disabled]="!retraitForm.valid || isLoading || retraitData.montant > (getSelectedAccount(retraitData.numeroCompte)?.solde || 0)">
+                <div class="btn-content">
+                  <span *ngIf="isLoading" class="spinner"></span>
+                  <i *ngIf="!isLoading" class="fas fa-arrow-up me-2"></i>
+                  <span>Effectuer le retrait</span>
+                </div>
+                <div class="btn-hint">
+                  {{ retraitData.montant || 0 | number:'1.0-0' }} FCFA
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Form Virement -->
+        <div *ngIf="transactionType === 'VIREMENT'" class="transaction-form">
+          <div class="form-header">
+            <div class="form-title">
+              <div class="title-icon transfer">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <h2>Formulaire de Virement</h2>
+            </div>
+            <div class="form-steps">
+              <span class="step active">1. Comptes</span>
+              <span class="step">2. Montant</span>
+              <span class="step">3. Confirmation</span>
+            </div>
+          </div>
+          
+          <form (ngSubmit)="onSubmit()" #virementForm="ngForm" class="form-body">
+            <div class="form-section">
+              <div class="section-header">
+                <h3>
+                  <i class="fas fa-exchange-alt me-2"></i>
+                  Comptes concernés
+                </h3>
+              </div>
+              
+              <div class="account-grid">
+                <!-- Compte source -->
+                <div class="account-card source">
+                  <div class="card-header">
+                    <h4>
+                      <i class="fas fa-arrow-up"></i>
+                      Compte source
+                    </h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <label class="form-label">Compte à débiter *</label>
+                      <div class="select-wrapper">
+                        <select class="form-select" 
+                                name="numeroCompteSource" 
+                                [(ngModel)]="virementData.numeroCompteSource"
+                                title="Sélectionner le compte source"
+                                required>
+                          <option value="">Sélectionnez un compte</option>
+                          <option *ngFor="let account of accounts" [value]="account.numeroCompte">
+                            {{ account.numeroCompte }} - {{ account.proprietaireNom }}
+                          </option>
+                        </select>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                      </div>
+                    </div>
+                    
+                    <div *ngIf="getSelectedAccount(virementData.numeroCompteSource)" class="account-info">
+                      <div class="info-item">
+                        <span class="label">Solde</span>
+                        <span class="value">{{ getSelectedAccount(virementData.numeroCompteSource)?.solde | number:'1.0-0' }} FCFA</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Type</span>
+                        <span class="value">{{ getSelectedAccount(virementData.numeroCompteSource)?.typeCompte === 'COMPTE_EPARGNE' ? 'Épargne' : 'Courant' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Flèche de transfert -->
+                <div class="transfer-arrow">
+                  <i class="fas fa-long-arrow-alt-right"></i>
+                </div>
+                
+                <!-- Compte destination -->
+                <div class="account-card destination">
+                  <div class="card-header">
+                    <h4>
+                      <i class="fas fa-arrow-down"></i>
+                      Compte destination
+                    </h4>
+                  </div>
+                  <div class="card-body">
+                    <div class="form-group">
+                      <label class="form-label">Compte à créditer *</label>
+                      <div class="select-wrapper">
+                        <select class="form-select" 
+                                name="numeroCompteDestination" 
+                                [(ngModel)]="virementData.numeroCompteDestination"
+                                title="Sélectionner le compte destinataire"
+                                required>
+                          <option value="">Sélectionnez un compte</option>
+                          <option *ngFor="let account of accounts" [value]="account.numeroCompte">
+                            {{ account.numeroCompte }} - {{ account.proprietaireNom }}
+                          </option>
+                        </select>
+                        <i class="fas fa-chevron-down select-arrow"></i>
+                      </div>
+                    </div>
+                    
+                    <div *ngIf="getSelectedAccount(virementData.numeroCompteDestination)" class="account-info">
+                      <div class="info-item">
+                        <span class="label">Solde</span>
+                        <span class="value">{{ getSelectedAccount(virementData.numeroCompteDestination)?.solde | number:'1.0-0' }} FCFA</span>
+                      </div>
+                      <div class="info-item">
+                        <span class="label">Type</span>
+                        <span class="value">{{ getSelectedAccount(virementData.numeroCompteDestination)?.typeCompte === 'COMPTE_EPARGNE' ? 'Épargne' : 'Courant' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div *ngIf="virementData.numeroCompteSource === virementData.numeroCompteDestination && virementData.numeroCompteSource" 
+                   class="alert-card warning">
+                <div class="alert-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                  <h4>Comptes identiques</h4>
+                  <p>Le compte source et le compte destination ne peuvent pas être les mêmes.</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="section-header">
+                <h3>
+                  <i class="fas fa-money-bill-wave me-2"></i>
+                  Détails du virement
+                </h3>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-coins me-2"></i>
+                  Montant à transférer *
+                </label>
+                <div class="input-group">
+                  <span class="input-prefix">FCFA</span>
+                  <input type="number" 
+                         class="form-input" 
+                         name="montant" 
+                         [(ngModel)]="virementData.montant"
+                         required 
+                         min="1"
+                         [max]="getSelectedAccount(virementData.numeroCompteSource)?.solde || 0"
+                         placeholder="Entrez le montant">
+                  <div class="input-actions">
+                    <button type="button" class="amount-btn" (click)="setAmount(10000)">10k</button>
+                    <button type="button" class="amount-btn" (click)="setAmount(50000)">50k</button>
+                    <button type="button" class="amount-btn" (click)="setMaxAmount()">Max</button>
+                  </div>
+                </div>
+                <div class="form-hint">
+                  <i class="fas fa-info-circle"></i>
+                  Solde disponible : {{ getSelectedAccount(virementData.numeroCompteSource)?.solde || 0 | number:'1.0-0' }} FCFA
+                </div>
+              </div>
+              
+              <div *ngIf="virementData.montant > (getSelectedAccount(virementData.numeroCompteSource)?.solde || 0)" class="alert-card warning">
+                <div class="alert-icon">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                  <h4>Solde insuffisant</h4>
+                  <p>Le montant demandé dépasse le solde disponible du compte source.</p>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">
+                  <i class="fas fa-align-left me-2"></i>
+                  Description
+                </label>
+                <textarea class="form-textarea" 
+                          name="description" 
+                          [(ngModel)]="virementData.description"
+                          rows="3"
+                          placeholder="Description du virement (optionnel)"></textarea>
+                <div class="char-count">
+                  {{ transferDescription.length || 0 }}/255 caractères
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="summary-card">
+                <div class="summary-header">
+                  <h4>Récapitulatif du virement</h4>
+                </div>
+                <div class="summary-body">
+                  <div class="summary-grid">
+                    <div class="summary-column source">
+                      <div class="column-header">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Source</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="label">Compte</span>
+                        <span class="value">{{ virementData.numeroCompteSource || 'Non sélectionné' }}</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="label">Ancien solde</span>
+                        <span class="value">{{ getSelectedAccount(virementData.numeroCompteSource)?.solde || 0 | number:'1.0-0' }} FCFA</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="label">Nouveau solde</span>
+                        <span class="value">{{ calculateTransferNewBalance('source') | number:'1.0-0' }} FCFA</span>
+                      </div>
+                    </div>
+                    
+                    <div class="summary-column center">
+                      <div class="transfer-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                      </div>
+                      <div class="transfer-amount">
+                        {{ virementData.montant || 0 | number:'1.0-0' }} FCFA
+                      </div>
+                    </div>
+                    
+                    <div class="summary-column destination">
+                      <div class="column-header">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Destination</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="label">Compte</span>
+                        <span class="value">{{ virementData.numeroCompteDestination || 'Non sélectionné' }}</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="label">Ancien solde</span>
+                        <span class="value">{{ getSelectedAccount(virementData.numeroCompteDestination)?.solde || 0 | number:'1.0-0' }} FCFA</span>
+                      </div>
+                      <div class="summary-item">
+                        <span class="label">Nouveau solde</span>
+                        <span class="value">{{ calculateTransferNewBalance('destination') | number:'1.0-0' }} FCFA</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" routerLink="/transactions">
+                <i class="fas fa-times me-2"></i>
+                Annuler
+              </button>
+              <button type="submit" class="btn-submit transfer" 
+                      [disabled]="!virementForm.valid || isLoading || 
+                                 virementData.montant > (getSelectedAccount(virementData.numeroCompteSource)?.solde || 0) ||
+                                 virementData.numeroCompteSource === virementData.numeroCompteDestination">
+                <div class="btn-content">
+                  <span *ngIf="isLoading" class="spinner"></span>
+                  <i *ngIf="!isLoading" class="fas fa-exchange-alt me-2"></i>
+                  <span>Effectuer le virement</span>
+                </div>
+                <div class="btn-hint">
+                  {{ virementData.montant || 0 | number:'1.0-0' }} FCFA
+                </div>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

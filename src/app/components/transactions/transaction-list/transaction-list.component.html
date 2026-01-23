@@ -1,10 +1,428 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<app-navbar></app-navbar>
+
+<div class="transactions-container">
+  <!-- En-tête -->
+  <div class="transactions-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="title-icon">
+          <i class="fas fa-exchange-alt"></i>
+        </div>
+        <div class="title-text">
+          <h1>Transactions</h1>
+          <p class="subtitle">Historique et gestion des opérations bancaires</p>
+        </div>
+      </div>
+      
+      <a routerLink="/transactions/new" class="add-transaction-btn">
+        <i class="fas fa-plus-circle"></i>
+        <span>Nouvelle Transaction</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="transactions-content">
+    <!-- Panneau de filtres -->
+    <div class="filter-panel">
+      <div class="panel-header">
+        <h3>
+          <i class="fas fa-filter"></i>
+          Rechercher des Transactions
+        </h3>
+        <div class="stats-badge" *ngIf="filter.numeroCompte">
+          {{ transactions.length }} transaction(s)
+        </div>
+      </div>
+      
+      <div class="panel-body">
+        <div class="filter-grid">
+          <!-- Sélection du compte -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-credit-card"></i>
+              Compte *
+            </label>
+            <div class="select-wrapper">
+              <select class="filter-select" [(ngModel)]="filter.numeroCompte">
+                <option value="">Sélectionnez un compte</option>
+                <option *ngFor="let account of accounts" [value]="account.numeroCompte">
+                  {{ account.numeroCompte }} - {{ account.proprietaireNom }}
+                </option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+          
+          <!-- Dates -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-calendar-alt"></i>
+              Date début
+            </label>
+            <input type="date" class="filter-input" [(ngModel)]="filter.dateDebut">
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">
+              <i class="fas fa-calendar-alt"></i>
+              Date fin
+            </label>
+            <input type="date" class="filter-input" [(ngModel)]="filter.dateFin">
+          </div>
+          
+          <!-- Bouton recherche -->
+          <div class="filter-group">
+            <label class="filter-label">&nbsp;</label>
+            <button class="search-btn" (click)="searchTransactions()" [disabled]="!filter.numeroCompte">
+              <i class="fas fa-search"></i>
+              Rechercher
+            </button>
+          </div>
+        </div>
+        
+        <!-- Actions rapides -->
+        <div class="quick-actions">
+          <button class="action-btn pdf-btn" 
+                  (click)="generatePDF()" 
+                  [disabled]="!filter.numeroCompte || transactions.length === 0">
+            <i class="fas fa-file-pdf"></i>
+            <span>Générer PDF</span>
+          </button>
+          
+          <button class="action-btn reset-btn" (click)="resetFilters()">
+            <i class="fas fa-redo"></i>
+            <span>Réinitialiser</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alerts-container">
+      <div *ngIf="errorMessage" class="alert-card error">
+        <div class="alert-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Erreur</h4>
+          <p>{{ errorMessage }}</p>
+        </div>
+        <button class="alert-close" (click)="errorMessage = ''">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div *ngIf="successMessage" class="alert-card success">
+        <div class="alert-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Succès</h4>
+          <p>{{ successMessage }}</p>
+        </div>
+        <button class="alert-close" (click)="successMessage = ''">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- État initial -->
+    <div *ngIf="!filter.numeroCompte && !isLoading" class="initial-state">
+      <div class="initial-icon">
+        <i class="fas fa-search-dollar"></i>
+      </div>
+      <div class="initial-content">
+        <h3>Sélectionnez un compte</h3>
+        <p>Choisissez un compte bancaire pour visualiser ses transactions</p>
+        <div class="initial-hint">
+          <i class="fas fa-lightbulb"></i>
+          Vous devez d'abord sélectionner un compte et une période
+        </div>
+      </div>
+    </div>
+
+    <!-- État de chargement -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">
+          <h3>Recherche des transactions</h3>
+          <p>Veuillez patienter pendant le chargement des données...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aucune transaction -->
+    <div *ngIf="!isLoading && filter.numeroCompte && transactions.length === 0" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-exchange-alt"></i>
+      </div>
+      <div class="empty-content">
+        <h3>Aucune transaction trouvée</h3>
+        <p>Aucune opération pour ce compte pendant la période sélectionnée</p>
+        <div class="empty-actions">
+          <button class="empty-btn" (click)="resetFilters()">
+            <i class="fas fa-redo me-2"></i>
+            Changer les filtres
+          </button>
+          <a routerLink="/transactions/new" class="empty-btn primary">
+            <i class="fas fa-plus me-2"></i>
+            Créer une transaction
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Transactions trouvées -->
+    <div *ngIf="!isLoading && transactions.length > 0" class="transactions-results">
+      <!-- Statistiques -->
+      <div class="results-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-list"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-value">{{ transactions.length }}</span>
+            <span class="stat-label">Transactions</span>
+          </div>
+        </div>
+        
+        <div class="stat-card deposits">
+          <div class="stat-icon">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-value">{{ getTotalByType('DEPOT') | number:'1.0-0' }} FCFA</span>
+            <span class="stat-label">Total Dépôts</span>
+          </div>
+        </div>
+        
+        <div class="stat-card withdrawals">
+          <div class="stat-icon">
+            <i class="fas fa-arrow-up"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-value">{{ getTotalByType('RETRAIT') | number:'1.0-0' }} FCFA</span>
+            <span class="stat-label">Total Retraits</span>
+          </div>
+        </div>
+        
+        <div class="stat-card transfers">
+          <div class="stat-icon">
+            <i class="fas fa-exchange-alt"></i>
+          </div>
+          <div class="stat-content">
+            <span class="stat-value">{{ getTotalByType('VIREMENT') | number:'1.0-0' }} FCFA</span>
+            <span class="stat-label">Total Virements</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table des transactions -->
+      <div class="transactions-table-container">
+        <div class="table-header">
+          <div class="table-info">
+            <h3>Historique des Transactions</h3>
+            <p class="table-period">
+              <i class="fas fa-calendar me-1"></i>
+              Du {{ filter.dateDebut | date:'dd/MM/yyyy' }} au {{ filter.dateFin | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+          <div class="table-actions">
+            <button class="table-action-btn" (click)="printTable()">
+              <i class="fas fa-print"></i>
+              Imprimer
+            </button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th class="column-date">Date</th>
+                <th class="column-type">Type</th>
+                <th class="column-amount">Montant</th>
+                <th class="column-account">Comptes</th>
+                <th class="column-description">Description</th>
+                <th class="column-status">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let transaction of transactions; let i = index" 
+                  class="transaction-row"
+                  [class.deposit]="transaction.typeTransaction === 'DEPOT'"
+                  [class.withdrawal]="transaction.typeTransaction === 'RETRAIT'"
+                  [class.transfer]="transaction.typeTransaction === 'VIREMENT'">
+                
+                <td class="column-date">
+                  <div class="date-cell">
+                    <div class="date-day">{{ formatTransactionDate(transaction.dateTransaction, 'dd') }}</div>
+                    <div class="date-details">
+                      <div class="date-month">{{ formatTransactionDate(transaction.dateTransaction, 'MMM') }}</div>
+                      <div class="date-time">{{ formatTransactionDate(transaction.dateTransaction, 'HH:mm') }}</div>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="column-type">
+                  <div class="transaction-type">
+                    <div class="type-icon" [class]="getTransactionClass(transaction.typeTransaction)">
+                      <i class="fas" [class]="getTransactionIcon(transaction.typeTransaction)"></i>
+                    </div>
+                    <div class="type-info">
+                      <span class="type-label">{{ getTransactionLabel(transaction.typeTransaction) }}</span>
+                      <span class="type-code">{{ transaction.typeTransaction }}</span>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="column-amount">
+                  <div class="amount-cell" [class]="getAmountClass(transaction.typeTransaction)">
+                    <span class="amount-sign">{{ transaction.typeTransaction === 'DEPOT' ? '+' : '-' }}</span>
+                    <span class="amount-value">{{ transaction.montant | number:'1.0-0' }}</span>
+                    <span class="amount-currency">FCFA</span>
+                  </div>
+                </td>
+                
+                <td class="column-account">
+                  <div class="account-info">
+                    <div class="account-source">
+                      <i class="fas fa-credit-card"></i>
+                      <span class="account-number">{{ transaction.numeroCompte || 'N/A' }}</span>
+                    </div>
+                    <div class="account-destination" *ngIf="transaction.compteDestination">
+                      <i class="fas fa-long-arrow-alt-right"></i>
+                      <span class="account-number">{{ transaction.compteDestination }}</span>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="column-description">
+                  <div class="description-cell">
+                    <span class="description-text">{{ transaction.description || 'Aucune description' }}</span>
+                  </div>
+                </td>
+                
+                <td class="column-status">
+                  <div class="status-badge" [class]="getStatusClass(transaction)">
+                    {{ getTransactionStatus(transaction) }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="table-footer" *ngIf="transactions.length > 10">
+          <div class="pagination">
+            <button class="pagination-btn" [disabled]="currentPage === 1" (click)="previousPage()">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div class="page-info">
+              Page {{ currentPage }} sur {{ totalPages }}
+            </div>
+            
+            <button class="pagination-btn" [disabled]="currentPage === totalPages" (click)="nextPage()">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résumé financier -->
+      <div class="financial-summary">
+        <div class="summary-header">
+          <h4>
+            <i class="fas fa-chart-bar me-2"></i>
+            Résumé Financier
+          </h4>
+        </div>
+        
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">
+              <i class="fas fa-arrow-down"></i>
+              Total des entrées
+            </div>
+            <div class="summary-value positive">
+              {{ getTotalByType('DEPOT') + getTotalByType('VIREMENT') | number:'1.0-0' }} FCFA
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-label">
+              <i class="fas fa-arrow-up"></i>
+              Total des sorties
+            </div>
+            <div class="summary-value negative">
+              {{ getTotalByType('RETRAIT') + getTotalByType('VIREMENT') | number:'1.0-0' }} FCFA
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-label">
+              <i class="fas fa-balance-scale"></i>
+              Solde net
+            </div>
+            <div class="summary-value" [class]="getNetBalanceClass()">
+              {{ getNetBalance() | number:'1.0-0' }} FCFA
+            </div>
+          </div>
+          
+          <div class="summary-item">
+            <div class="summary-label">
+              <i class="fas fa-percent"></i>
+              Taux d'activité
+            </div>
+            <div class="summary-value">
+              {{ getActivityRate() }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'export (simplifié) -->
+<div *ngIf="showExportModal" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fas fa-download me-2"></i>
+        Exporter les données
+      </h3>
+      <button class="modal-close" (click)="closeExportModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Sélectionnez le format d'export :</p>
+      <div class="export-options">
+        <button class="export-option" (click)="exportFormat = 'pdf'; confirmExport()">
+          <i class="fas fa-file-pdf"></i>
+          <span>PDF</span>
+        </button>
+        <button class="export-option" (click)="exportFormat = 'excel'; confirmExport()">
+          <i class="fas fa-file-excel"></i>
+          <span>Excel</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeExportModal()">
+        Annuler
+      </button>
+    </div>
+  </div>
+</div>

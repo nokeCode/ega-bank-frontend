@@ -1,1 +1,346 @@
 /* You can add global styles to this file, and also import other style files */
+/* Reset et styles globaux */
+
+/* ===== VARIABLES DU THÈME EGA BANK (GLOBAL) ===== */
+:root {
+  /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+
+  /* Couleurs d'accent */
+  --accent-blue: #4A90E2;
+  --accent-teal: #20B2AA;
+  --accent-gold: #D4AF37;
+
+  /* États */
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --info: #17A2B8;
+
+  /* Ombres et effets */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.16);
+  --shadow-card: 0 6px 20px rgba(0, 31, 63, 0.1);
+
+  /* Bordures */
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typographie */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+
+   /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+  
+  /* Couleurs d'accent */
+  --accent-blue: #4A90E2;
+  --accent-teal: #20B2AA;
+  --accent-gold: #D4AF37;
+  
+  /* États */
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --info: #17A2B8;
+  
+  /* Navbar spécifique */
+  --navbar-bg: var(--navy);
+  --navbar-text: var(--white);
+  --navbar-text-secondary: rgba(255, 255, 255, 0.8);
+  --navbar-hover: rgba(255, 255, 255, 0.1);
+  --navbar-active: rgba(74, 144, 226, 0.2);
+  --navbar-border: rgba(255, 255, 255, 0.1);
+  
+  /* Ombres */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.15);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.2);
+  
+  /* Bordures */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 50%;
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+
+    /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+  
+  /* Accent colors */
+  --primary: #4A90E2;
+  --primary-light: #6A9EFF;
+  --primary-dark: #357AE8;
+  --secondary: #20B2AA;
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --info: #17A2B8;
+  
+  /* Table colors */
+  --table-header-bg: rgba(0, 31, 63, 0.05);
+  --table-border: rgba(0, 31, 63, 0.1);
+  --table-row-hover: rgba(74, 144, 226, 0.05);
+  --table-row-selected: rgba(74, 144, 226, 0.1);
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.16);
+  --shadow-card: 0 6px 20px rgba(0, 31, 63, 0.1);
+  
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 50%;
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+  --gray-light: #E9ECEF;
+  --gray: #6C757D;
+  --gray-dark: #343A40;
+  
+  /* Accent colors */
+  --primary: #4A90E2;
+  --primary-light: #6A9EFF;
+  --primary-dark: #357AE8;
+  --secondary: #20B2AA;
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --info: #17A2B8;
+  
+  /* Transaction colors */
+  --deposit-color: #28A745;
+  --deposit-light: rgba(40, 167, 69, 0.1);
+  --deposit-dark: #1e7e34;
+  --withdrawal-color: #FFC107;
+  --withdrawal-light: rgba(255, 193, 7, 0.1);
+  --withdrawal-dark: #e0a800;
+  --transfer-color: #4A90E2;
+  --transfer-light: rgba(74, 144, 226, 0.1);
+  --transfer-dark: #357AE8;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.16);
+  --shadow-card: 0 6px 20px rgba(0, 31, 63, 0.1);
+  
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 50%;
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+  --gray-light: #E9ECEF;
+  --gray: #6C757D;
+  --gray-dark: #343A40;
+  
+  /* Accent colors */
+  --success: #28A745;
+  --success-light: rgba(40, 167, 69, 0.1);
+  --success-dark: #1e7e34;
+  --danger: #DC3545;
+  --warning: #FFC107;
+  --info: #17A2B8;
+  --primary: #4A90E2;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.16);
+  --shadow-card: 0 6px 20px rgba(0, 31, 63, 0.1);
+  
+  /* Border radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+   /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+
+  /* Nouvelles couleurs pour les cartes */
+  --card-blue: linear-gradient(135deg, #4A90E2 0%, #001F3F 100%);
+  --card-teal: linear-gradient(135deg, #20B2AA 0%, #0D5C5C 100%);
+  --card-gold: linear-gradient(135deg, #D4AF37 0%, #8B6914 100%);
+  --card-purple: linear-gradient(135deg, #9B59B6 0%, #4A235A 100%);
+  --card-green: linear-gradient(135deg, #27AE60 0%, #145A32 100%);
+
+  /* Couleurs d'accent */
+  --accent-blue: #4A90E2;
+  --accent-teal: #20B2AA;
+  --accent-gold: #D4AF37;
+
+  /* États */
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --info: #17A2B8;
+
+  /* Ombres et effets */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.16);
+  --shadow-card: 0 6px 20px rgba(0, 31, 63, 0.15);
+
+  /* Bordures */
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  --border-radius-full: 50%;
+
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Typographie */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+
+  /* Palette de couleurs */
+  --navy: #001F3F;
+  --navy-light: #1a3d5c;
+  --navy-dark: #001529;
+  --beige: #F5F5DC;
+  --beige-light: #F9F9F2;
+  --beige-dark: #E8E8D8;
+  --white: #FFFFFF;
+  --white-smoke: #F8F9FA;
+  --gray: #6C757D;
+
+  /* Couleurs d'accent */
+  --accent-blue: #4A90E2;
+  --accent-teal: #20B2AA;
+  --accent-gold: #D4AF37;
+
+  /* États */
+  --success: #28A745;
+  --warning: #FFC107;
+  --danger: #DC3545;
+  --info: #17A2B8;
+
+  /* Ombres et effets */
+  --shadow-sm: 0 2px 8px rgba(0, 31, 63, 0.08);
+  --shadow-md: 0 4px 16px rgba(0, 31, 63, 0.12);
+  --shadow-lg: 0 8px 32px rgba(0, 31, 63, 0.16);
+  --shadow-card: 0 6px 20px rgba(0, 31, 63, 0.15);
+
+  /* Bordures */
+  --border-radius-sm: 6px;
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  --border-radius-full: 50%;
+
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  
+}
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  margin-top: 0 !important;
+  padding-top: 20px;
+}
+
+/* Supprime les marges du router-outlet */
+router-outlet {
+  display: none;
+}
+
+/* Style pour la navbar */
+nav.navbar {
+  margin-bottom: 0 !important;
+}

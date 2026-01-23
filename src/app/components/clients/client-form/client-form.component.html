@@ -1,161 +1,288 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Client Forme</title>
-</head>
-<body>
 <app-navbar></app-navbar>
 
-<div class="container mt-4">
-  <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="card">
-        <div class="card-header bg-primary text-white">
-          <h4 class="mb-0">
-            <i class="fas fa-user me-2"></i>
-            {{ isEditMode ? 'Modifier le Client' : 'Nouveau Client' }}
-          </h4>
+<div class="client-form-container">
+  <!-- En-tête -->
+  <div class="client-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="title-icon">
+          <i class="fas fa-user"></i>
         </div>
-        <div class="card-body">
-          <div *ngIf="errorMessage" class="alert alert-danger">
-            {{ errorMessage }}
-          </div>
+        <div class="title-text">
+          <h1>{{ isEditMode ? 'Modifier le Client' : 'Nouveau Client' }}</h1>
+          <p class="subtitle">{{ isEditMode ? 'Modifiez les informations du client' : 'Créez un nouveau profil client' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <form (ngSubmit)="onSubmit()" #clientForm="ngForm">
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="nom" class="form-label">Nom *</label>
+  <!-- Éléments flottants -->
+  <div class="floating-element"></div>
+
+  <!-- Contenu principal -->
+  <div class="form-container">
+    <div class="form-wrapper">
+      <!-- En-tête du formulaire -->
+      <div class="form-header">
+        <div class="form-header-content">
+          <div class="form-header-icon">
+            <i class="fas fa-id-card"></i>
+          </div>
+          <div class="form-header-text">
+            <h2>Informations Personnelles</h2>
+            <p>Remplissez tous les champs obligatoires (*) pour {{ isEditMode ? 'modifier' : 'créer' }} le client</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div class="form-body">
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="alert-message error">
+          <i class="fas fa-exclamation-circle"></i>
+          <div>{{ errorMessage }}</div>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #clientForm="ngForm">
+          <!-- Grille de formulaire -->
+          <div class="form-grid">
+            <!-- Nom -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-signature"></i>
+                Nom *
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
                 <input
                   type="text"
-                  class="form-control"
+                  class="form-input"
                   id="nom"
                   name="nom"
                   [(ngModel)]="client.nom"
                   required
                   minlength="2"
+                  placeholder="Entrez le nom"
+                  #nom="ngModel"
                 >
               </div>
+              <div *ngIf="nom.invalid && (nom.dirty || nom.touched)" class="form-hint error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="nom.errors?.['required']">Le nom est obligatoire</span>
+                <span *ngIf="nom.errors?.['minlength']">Minimum 2 caractères</span>
+              </div>
+            </div>
 
-              <div class="col-md-6 mb-3">
-                <label for="prenom" class="form-label">Prénom *</label>
+            <!-- Prénom -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-signature"></i>
+                Prénom *
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-user input-icon"></i>
                 <input
                   type="text"
-                  class="form-control"
+                  class="form-input"
                   id="prenom"
                   name="prenom"
                   [(ngModel)]="client.prenom"
                   required
                   minlength="2"
+                  placeholder="Entrez le prénom"
+                  #prenom="ngModel"
                 >
               </div>
+              <div *ngIf="prenom.invalid && (prenom.dirty || prenom.touched)" class="form-hint error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="prenom.errors?.['required']">Le prénom est obligatoire</span>
+                <span *ngIf="prenom.errors?.['minlength']">Minimum 2 caractères</span>
+              </div>
             </div>
+          </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="dateNaissance" class="form-label">Date de Naissance *</label>
+          <div class="form-grid">
+            <!-- Date de Naissance -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-birthday-cake"></i>
+                Date de Naissance *
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-calendar-alt input-icon"></i>
                 <input
                   type="date"
-                  class="form-control"
+                  class="form-input"
                   id="dateNaissance"
                   name="dateNaissance"
                   [(ngModel)]="client.dateNaissance"
                   required
+                  #dateNaissance="ngModel"
                 >
               </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="sexe" class="form-label">Sexe *</label>
-                <select
-                  class="form-select"
-                  id="sexe"
-                  name="sexe"
-                  [(ngModel)]="client.sexe"
-                  required
-                >
-                  <option value="MASCULIN">Masculin</option>
-                  <option value="FEMININ">Féminin</option>
-                  <option value="AUTRE">Autre</option>
-                </select>
+              <div *ngIf="dateNaissance.invalid && (dateNaissance.dirty || dateNaissance.touched)" class="form-hint error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="dateNaissance.errors?.['required']">La date de naissance est obligatoire</span>
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="adresse" class="form-label">Adresse *</label>
+            <!-- Sexe -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-venus-mars"></i>
+                Sexe *
+              </label>
+              <select
+                class="form-select"
+                id="sexe"
+                name="sexe"
+                [(ngModel)]="client.sexe"
+                required
+                #sexe="ngModel"
+              >
+                <option value="MASCULIN">Masculin</option>
+                <option value="FEMININ">Féminin</option>
+                <option value="AUTRE">Autre</option>
+              </select>
+              <div *ngIf="sexe.invalid && (sexe.dirty || sexe.touched)" class="form-hint error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Le sexe est obligatoire</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Adresse -->
+          <div class="form-group full-width">
+            <label class="form-label">
+              <i class="fas fa-home"></i>
+              Adresse *
+            </label>
+            <div class="input-wrapper">
+              <i class="fas fa-map-marker-alt input-icon"></i>
               <textarea
-                class="form-control"
+                class="form-textarea"
                 id="adresse"
                 name="adresse"
                 [(ngModel)]="client.adresse"
                 rows="2"
                 required
+                placeholder="Entrez l'adresse complète"
+                #adresse="ngModel"
               ></textarea>
             </div>
+            <div *ngIf="adresse.invalid && (adresse.dirty || adresse.touched)" class="form-hint error">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="adresse.errors?.['required']">L'adresse est obligatoire</span>
+            </div>
+          </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="numeroTelephone" class="form-label">Numéro de Téléphone *</label>
+          <div class="form-grid">
+            <!-- Téléphone -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-phone"></i>
+                Numéro de Téléphone *
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-mobile-alt input-icon"></i>
                 <input
                   type="tel"
-                  class="form-control"
+                  class="form-input"
                   id="numeroTelephone"
                   name="numeroTelephone"
                   [(ngModel)]="client.numeroTelephone"
                   required
                   pattern="^\+?[0-9]{8,15}$"
                   placeholder="+22890123456"
+                  #numeroTelephone="ngModel"
                 >
               </div>
+              <div *ngIf="numeroTelephone.invalid && (numeroTelephone.dirty || numeroTelephone.touched)" class="form-hint error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="numeroTelephone.errors?.['required']">Le téléphone est obligatoire</span>
+                <span *ngIf="numeroTelephone.errors?.['pattern']">Format invalide (8-15 chiffres)</span>
+              </div>
+            </div>
 
-              <div class="col-md-6 mb-3">
-                <label for="courriel" class="form-label">Email *</label>
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-envelope"></i>
+                Email *
+              </label>
+              <div class="input-wrapper">
+                <i class="fas fa-at input-icon"></i>
                 <input
                   type="email"
-                  class="form-control"
+                  class="form-input"
                   id="courriel"
                   name="courriel"
                   [(ngModel)]="client.courriel"
                   required
                   email
+                  placeholder="client@example.com"
+                  #courriel="ngModel"
                 >
               </div>
+              <div *ngIf="courriel.invalid && (courriel.dirty || courriel.touched)" class="form-hint error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="courriel.errors?.['required']">L'email est obligatoire</span>
+                <span *ngIf="courriel.errors?.['email']">Format d'email invalide</span>
+              </div>
             </div>
+          </div>
 
-            <div class="mb-3">
-              <label for="nationalite" class="form-label">Nationalité *</label>
+          <!-- Nationalité -->
+          <div class="form-group full-width">
+            <label class="form-label">
+              <i class="fas fa-flag"></i>
+              Nationalité *
+            </label>
+            <div class="input-wrapper">
+              <i class="fas fa-globe input-icon"></i>
               <input
                 type="text"
-                class="form-control"
+                class="form-input"
                 id="nationalite"
                 name="nationalite"
                 [(ngModel)]="client.nationalite"
                 required
+                placeholder="Entrez la nationalité"
+                #nationalite="ngModel"
               >
             </div>
+            <div *ngIf="nationalite.invalid && (nationalite.dirty || nationalite.touched)" class="form-hint error">
+              <i class="fas fa-exclamation-circle"></i>
+              <span *ngIf="nationalite.errors?.['required']">La nationalité est obligatoire</span>
+            </div>
+          </div>
 
-            <div class="d-flex gap-2">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="!clientForm.valid || isLoading"
-              >
-                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
-                <i *ngIf="!isLoading" class="fas fa-save me-2"></i>
-                {{ isEditMode ? 'Mettre à jour' : 'Créer' }}
-              </button>
-              <button
-                type="button"
-                class="btn btn-secondary"
-                routerLink="/clients"
-              >
-                <i class="fas fa-times me-2"></i>Annuler
-              </button>
-            </div>
-          </form>
-        </div>
+          <!-- Actions -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              routerLink="/clients"
+            >
+              <i class="fas fa-times"></i>
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="!clientForm.valid || isLoading"
+            >
+              <span *ngIf="isLoading" class="spinner"></span>
+              <i *ngIf="!isLoading" class="fas fa-save"></i>
+              {{ isEditMode ? 'Mettre à jour' : 'Créer le Client' }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
 </div>
-</body>
-</html>

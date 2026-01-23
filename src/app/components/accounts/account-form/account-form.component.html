@@ -1,10 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<app-navbar></app-navbar>
+
+<div class="account-form-container">
+  <!-- En-tête -->
+  <div class="account-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="title-icon">
+          <i class="fas fa-plus-circle"></i>
+        </div>
+        <div class="title-text">
+          <h1>Nouveau Compte</h1>
+          <p class="subtitle">Créez un nouveau compte bancaire pour votre client</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="form-container">
+    <div class="form-wrapper">
+      <!-- En-tête du formulaire -->
+      <div class="form-header">
+        <div class="form-header-content">
+          <div class="form-header-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <div class="form-header-text">
+            <h2>Création de Compte</h2>
+            <p>Remplissez les informations nécessaires pour ouvrir un nouveau compte</p>
+          </div>
+        </div>
+        <!-- Badge client présélectionné -->
+        <div class="form-header-badge" *ngIf="selectedClientId && getSelectedClientName()">
+          <i class="fas fa-check-circle"></i>
+          <span>Client : {{ getSelectedClientName() }}</span>
+        </div>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div class="form-body">
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="alert-message error">
+          <i class="fas fa-exclamation-circle"></i>
+          <div>{{ errorMessage }}</div>
+        </div>
+
+        <form (ngSubmit)="onSubmit()" #accountForm="ngForm">
+          <!-- Type de compte -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-sliders-h"></i>
+              Type de Compte *
+            </label>
+            <div class="select-wrapper">
+              <select
+                class="form-select"
+                name="typeCompte"
+                [(ngModel)]="account.typeCompte"
+                title="Sélectionner le type de compte"
+                required
+              >
+                <option value="COMPTE_COURANT">Compte Courant</option>
+                <option value="COMPTE_EPARGNE">Compte Épargne</option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+          </div>
+
+          <!-- Client propriétaire -->
+          <div class="form-group">
+            <label class="form-label">
+              <i class="fas fa-user"></i>
+              Client Propriétaire *
+            </label>
+            <div class="select-wrapper">
+              <select
+                class="form-select"
+                name="proprietaireId"
+                [(ngModel)]="account.proprietaireId"
+                title="Sélectionner le client propriétaire"
+                required
+                [disabled]="clients.length === 0"
+              >
+                <option value="0" disabled selected>
+                  {{ clients.length === 0 ? 'Chargement des clients...' : 'Sélectionnez un client' }}
+                </option>
+                <option *ngFor="let client of clients" [value]="client.id">
+                  {{ client.prenom }} {{ client.nom }}
+                </option>
+              </select>
+              <i class="fas fa-chevron-down select-arrow"></i>
+            </div>
+            <div class="form-hint" *ngIf="clients.length === 0">
+              <i class="fas fa-spinner fa-spin me-1"></i>
+              Chargement des clients...
+            </div>
+          </div>
+
+          <!-- Information card -->
+          <div class="info-card">
+            <i class="fas fa-info-circle"></i>
+            <p>
+              <strong>Information importante :</strong> 
+              Le solde initial du compte sera de <strong>0 FCFA</strong>. 
+              Le titulaire pourra effectuer des dépôts après la création du compte.
+            </p>
+          </div>
+
+          <!-- Type de compte preview -->
+          <div *ngIf="account.typeCompte" class="account-preview">
+            <div class="preview-header">
+              <i class="fas fa-eye"></i>
+              <span>Caractéristiques du compte</span>
+            </div>
+            <div class="preview-content">
+              <div class="preview-item">
+                <span class="label">Type sélectionné</span>
+                <span class="value">{{ account.typeCompte === 'COMPTE_COURANT' ? 'Compte Courant' : 'Compte Épargne' }}</span>
+              </div>
+              <div class="preview-item">
+                <span class="label">Client</span>
+                <span class="value">{{ getSelectedClientName() || 'Non sélectionné' }}</span>
+              </div>
+              <div class="preview-item">
+                <span class="label">Solde initial</span>
+                <span class="value">0 FCFA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              routerLink="/accounts"
+            >
+              <i class="fas fa-times"></i>
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="btn btn-success"
+              [disabled]="!accountForm.valid || isLoading || account.proprietaireId === 0 || clients.length === 0"
+            >
+              <span *ngIf="isLoading" class="spinner"></span>
+              <i *ngIf="!isLoading" class="fas fa-save"></i>
+              Créer le Compte
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

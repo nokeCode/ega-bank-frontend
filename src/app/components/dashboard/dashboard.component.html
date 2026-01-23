@@ -1,10 +1,437 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <!-- Éléments flottants décoratifs -->
+  <div class="floating-element"></div>
+  
+  <!-- Cartes KPI avec histogrammes -->
+  <div class="kpi-section">
+    <div class="kpi-grid">
+      <!-- Carte Clients -->
+      <div class="kpi-card clients-card illustrated">
+        <!-- Badge de statut -->
+        <div class="status-badge">
+          <i class="fas fa-trend-up me-1"></i>Actif
+        </div>
+
+        <!-- Particules flottantes -->
+        <div class="particles-container">
+          <div class="particle" style="left: 20%; width: 3px; height: 3px; animation-delay: 0s;"></div>
+          <div class="particle" style="left: 50%; width: 2px; height: 2px; animation-delay: 1s;"></div>
+          <div class="particle" style="left: 80%; width: 4px; height: 4px; animation-delay: 2s;"></div>
+        </div>
+
+        <!-- Illustration -->
+        <div class="kpi-image-illustration"></div>
+
+        <!-- Contenu principal -->
+        <div class="kpi-card-header">
+          <div class="kpi-icon">
+            <i class="fas fa-user-friends"></i>
+          </div>
+          <div class="kpi-growth positive">
+            <i class="fas fa-arrow-up"></i>
+            12.5%
+          </div>
+        </div>
+        
+        <!-- Nouveau contenu avec histogramme -->
+        <div class="kpi-card-content">
+          <div class="kpi-main-content">
+            <h3 class="kpi-value">{{ totalClients | number }}</h3>
+            <p class="kpi-label">Clients Actifs</p>
+          </div>
+          
+          <!-- Mini histogramme -->
+          <div class="kpi-chart-container">
+            <div class="kpi-chart">
+              <!-- Barres de l'histogramme -->
+              <div *ngFor="let day of clientsWeeklyData; let i = index" 
+                   class="chart-bar" 
+                   [style.height.%]="getBarHeight(day.value, clientsWeeklyData)"
+                   [style.animation-delay.ms]="i * 100">
+              </div>
+            </div>
+            
+            <!-- Labels des jours -->
+            <div class="chart-days">
+              <span class="day-label">L</span>
+              <span class="day-label">M</span>
+              <span class="day-label">M</span>
+              <span class="day-label">J</span>
+              <span class="day-label">V</span>
+              <span class="day-label">S</span>
+              <span class="day-label">D</span>
+            </div>
+          </div>
+          
+          <div class="kpi-progress">
+            <div class="progress-bar" [style.width.%]="Math.min(totalClients / 100 * 100, 100)"></div>
+          </div>
+        </div>
+        
+        <div class="kpi-card-footer">
+          <a routerLink="/clients" class="kpi-link">
+            <span>Voir tous les clients</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Carte Comptes -->
+      <div class="kpi-card accounts-card illustrated">
+        <!-- Badge de statut -->
+        <div class="status-badge">
+          <i class="fas fa-chart-line me-1"></i>Croissance
+        </div>
+
+        <!-- Particules flottantes -->
+        <div class="particles-container">
+          <div class="particle" style="left: 30%; width: 2px; height: 2px; animation-delay: 0.5s;"></div>
+          <div class="particle" style="left: 60%; width: 3px; height: 3px; animation-delay: 1.5s;"></div>
+          <div class="particle" style="left: 90%; width: 2px; height: 2px; animation-delay: 2.5s;"></div>
+        </div>
+
+        <!-- Illustration -->
+        <div class="kpi-image-illustration"></div>
+
+        <div class="kpi-card-header">
+          <div class="kpi-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <div class="kpi-growth positive">
+            <i class="fas fa-arrow-up"></i>
+            8.3%
+          </div>
+        </div>
+        
+        <div class="kpi-card-content">
+          <div class="kpi-main-content">
+            <h3 class="kpi-value">{{ totalAccounts | number }}</h3>
+            <p class="kpi-label">Comptes Créés</p>
+          </div>
+          
+          <!-- Mini histogramme -->
+          <div class="kpi-chart-container">
+            <div class="kpi-chart">
+              <!-- Barres de l'histogramme -->
+              <div *ngFor="let day of accountsWeeklyData; let i = index" 
+                   class="chart-bar" 
+                   [style.height.%]="getBarHeight(day.value, accountsWeeklyData)"
+                   [style.animation-delay.ms]="i * 100">
+              </div>
+            </div>
+            
+            <!-- Labels des jours -->
+            <div class="chart-days">
+              <span class="day-label">L</span>
+              <span class="day-label">M</span>
+              <span class="day-label">M</span>
+              <span class="day-label">J</span>
+              <span class="day-label">V</span>
+              <span class="day-label">S</span>
+              <span class="day-label">D</span>
+            </div>
+          </div>
+          
+          <div class="kpi-progress">
+            <div class="progress-bar" [style.width.%]="Math.min(totalAccounts / 50 * 100, 100)"></div>
+          </div>
+        </div>
+        
+        <div class="kpi-card-footer">
+          <a routerLink="/accounts" class="kpi-link">
+            <span>Voir tous les comptes</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Carte Solde -->
+      <div class="kpi-card balance-card illustrated">
+        <!-- Badge de statut -->
+        <div class="status-badge">
+          <i class="fas fa-star me-1"></i>Premium
+        </div>
+
+        <!-- Particules flottantes -->
+        <div class="particles-container">
+          <div class="particle" style="left: 40%; width: 4px; height: 4px; animation-delay: 1s;"></div>
+          <div class="particle" style="left: 70%; width: 2px; height: 2px; animation-delay: 2s;"></div>
+          <div class="particle" style="left: 10%; width: 3px; height: 3px; animation-delay: 3s;"></div>
+        </div>
+
+        <!-- Illustration -->
+        <div class="kpi-image-illustration"></div>
+
+        <div class="kpi-card-header">
+          <div class="kpi-icon">
+            <i class="fas fa-coins"></i>
+          </div>
+          <div class="kpi-growth positive">
+            <i class="fas fa-arrow-up"></i>
+            15.2%
+          </div>
+        </div>
+        
+        <div class="kpi-card-content">
+          <div class="kpi-main-content">
+            <h3 class="kpi-value">{{ formatCurrency(dailyRevenueThisWeek) }}</h3>
+            <p class="kpi-label">CA quotidien moyen</p>
+          </div>
+          
+          <!-- Mini histogramme -->
+          <div class="kpi-chart-container">
+            <div class="kpi-chart">
+              <!-- Barres de l'histogramme -->
+              <div *ngFor="let day of revenueWeeklyData; let i = index" 
+                   class="chart-bar" 
+                   [style.height.%]="getBarHeight(day.value, revenueWeeklyData)"
+                   [style.animation-delay.ms]="i * 100">
+              </div>
+            </div>
+            
+            <!-- Labels des jours -->
+            <div class="chart-days">
+              <span class="day-label">L</span>
+              <span class="day-label">M</span>
+              <span class="day-label">M</span>
+              <span class="day-label">J</span>
+              <span class="day-label">V</span>
+              <span class="day-label">S</span>
+              <span class="day-label">D</span>
+            </div>
+          </div>
+          
+          <div class="kpi-progress">
+            <div class="progress-bar" [style.width.%]="Math.min(dailyRevenueThisWeek / 10000000 * 100, 100)"></div>
+          </div>
+        </div>
+        
+        <div class="kpi-card-footer">
+          <a routerLink="/transactions" class="kpi-link">
+            <span>Détails financiers</span>
+            <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Overlay de chargement -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner-container">
+        <div class="spinner"></div>
+      </div>
+      <div class="loading-text">
+        <h3>Chargement du tableau de bord</h3>
+        <p>Veuillez patienter pendant le chargement des données...</p>
+      </div>
+    </div>
+  </div>
+  <!-- Section principale -->
+  <div class="main-section">
+    <!-- Colonne gauche -->
+    <div class="main-column">
+      <!-- Actions rapides -->
+      <div class="action-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-bolt me-2"></i>Actions Rapides
+          </h2>
+          <p class="section-subtitle">Accédez rapidement aux fonctionnalités principales</p>
+        </div>
+        <div class="action-grid">
+          <a routerLink="/clients/new" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="action-content">
+              <h3>Nouveau Client</h3>
+              <p>Ajouter un nouveau client à la banque</p>
+            </div>
+            <div class="action-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </a>
+
+          <a routerLink="/accounts/new" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-plus-circle"></i>
+            </div>
+            <div class="action-content">
+              <h3>Nouveau Compte</h3>
+              <p>Créer un nouveau compte bancaire</p>
+            </div>
+            <div class="action-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </a>
+
+          <a routerLink="/transactions/new" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="action-content">
+              <h3>Nouvelle Transaction</h3>
+              <p>Effectuer un virement ou dépôt</p>
+            </div>
+            <div class="action-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </a>
+
+          <a routerLink="/reports" class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+            <div class="action-content">
+              <h3>Rapports Financiers</h3>
+              <p>Générer des rapports et statistiques</p>
+            </div>
+            <div class="action-arrow">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Transactions récentes -->
+      <div class="recent-section">
+        <div class="section-header">
+          <div class="header-left">
+            <h2 class="section-title">
+              <i class="fas fa-history me-2"></i>Transactions Récentes
+            </h2>
+            <p class="section-subtitle">Dernières opérations effectuées</p>
+          </div>
+          <a routerLink="/transactions" class="view-all-btn">
+            Voir tout <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="transactions-list">
+          <div *ngIf="recentTransactions.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h4>Aucune transaction</h4>
+            <p>Les transactions récentes apparaîtront ici</p>
+          </div>
+          <div *ngFor="let transaction of recentTransactions" class="transaction-item">
+            <div class="transaction-icon" [class.credit]="transaction.type === 'CREDIT' || transaction.type === 'DEPOT'"
+                 [class.debit]="transaction.type === 'DEBIT' || transaction.type === 'RETRAIT'">
+              <i class="fas" [class.fa-arrow-down]="transaction.type === 'CREDIT' || transaction.type === 'DEPOT'"
+                 [class.fa-arrow-up]="transaction.type === 'DEBIT' || transaction.type === 'RETRAIT'"
+                 [class.fa-exchange-alt]="transaction.type === 'VIREMENT'"></i>
+            </div>
+            <div class="transaction-details">
+              <div class="transaction-info">
+                <h4>{{ transaction.description || getTransactionTypeLabel(transaction) }}</h4>
+                <p class="transaction-meta">
+                  <span class="account-number">{{ transaction.numeroCompte || transaction.compte?.numeroCompte || 'N/A' }}</span>
+                  <span class="transaction-date">{{ (transaction.date || transaction.dateTransaction) | date:'dd/MM/yyyy HH:mm' }}</span>
+                </p>
+              </div>
+              <div class="transaction-amount" [class.credit]="transaction.type === 'CREDIT' || transaction.type === 'DEPOT'"
+                   [class.debit]="transaction.type === 'DEBIT' || transaction.type === 'RETRAIT'">
+                {{ (transaction.type === 'CREDIT' || transaction.type === 'DEPOT') ? '+' : '-' }}{{ formatCurrency(transaction.amount || transaction.montant || 0) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="sidebar-column">
+      <!-- Top clients -->
+      <div class="clients-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-crown me-2"></i>Top Clients
+          </h2>
+          <a routerLink="/clients" class="view-all-btn">
+            Voir tout <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="clients-list">
+          <div *ngIf="topClients.length === 0" class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h4>Aucun client</h4>
+            <p>Les clients apparaîtront ici</p>
+          </div>
+          <div *ngFor="let client of topClients; let i = index" class="client-item">
+            <div class="client-rank">
+              <span class="rank-number">#{{ i + 1 }}</span>
+            </div>
+            <div class="client-avatar">
+              <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="client-info">
+              <h4>{{ client.nom }} {{ client.prenom }}</h4>
+              <p class="client-details">
+                <span class="accounts-count">
+                  <i class="fas fa-wallet me-1"></i>{{ client.comptes?.length || 0 }} compte(s)
+                </span>
+              </p>
+            </div>
+            <div class="client-balance">
+              <span class="balance-amount">{{ formatCurrency(client.totalSolde || 0) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Statistiques rapides -->
+      <div class="stats-section">
+        <div class="section-header">
+          <h2 class="section-title">
+            <i class="fas fa-chart-line me-2"></i>Aujourd'hui
+          </h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <div class="stat-content">
+              <h4>{{ todayStats.transactions }}</h4>
+              <p>Transactions</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="stat-content">
+              <h4>{{ todayStats.newClients }}</h4>
+              <p>Nouveaux clients</p>
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon">
+              <i class="fas fa-wallet"></i>
+            </div>
+            <div class="stat-content">
+              <h4>{{ todayStats.newAccounts }}</h4>
+              <p>Nouveaux comptes</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Overlay de chargement -->
+<div *ngIf="isLoading" class="loading-overlay">
+  <div class="loading-content">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+    </div>
+    <div class="loading-text">
+      <h3>Chargement du tableau de bord</h3>
+      <p>Veuillez patienter pendant le chargement des données...</p>
+    </div>
+  </div>
+</div>

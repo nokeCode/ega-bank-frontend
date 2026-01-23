@@ -18,6 +18,7 @@ export class LoginComponent {
     password: ''
   };
 
+  showPassword: boolean = false;
   errorMessage: string = '';
   isLoading: boolean = false;
 
@@ -27,22 +28,40 @@ export class LoginComponent {
   ) {}
 
   onSubmit(): void {
+    if (this.loginFormInvalid()) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
 
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
         console.log('Connexion réussie', response);
-        this.router.navigate(['/dashboard']);
+        this.isLoading = false;
+        
+        // Redirection après connexion réussie
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 500);
       },
       error: (error) => {
         console.error('Erreur de connexion', error);
-        this.errorMessage = error.error?.message || 'Nom d\'utilisateur ou mot de passe incorrect';
-        this.isLoading = false;
-      },
-      complete: () => {
+        this.errorMessage = error.error?.message || 
+          'Nom d\'utilisateur ou mot de passe incorrect. Veuillez réessayer.';
         this.isLoading = false;
       }
     });
+  }
+
+  // Validation du formulaire
+  private loginFormInvalid(): boolean {
+    return !this.loginData.username || !this.loginData.password;
+  }
+
+  // Méthode pour basculer la visibilité du mot de passe
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 }

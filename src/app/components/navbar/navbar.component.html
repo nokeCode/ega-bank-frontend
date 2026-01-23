@@ -1,54 +1,116 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>navbar</title>
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg">
   <div class="container-fluid">
-    <a class="navbar-brand fw-bold" routerLink="/dashboard">
-      <i class="fas fa-university me-2"></i>Banque EGA
+    <!-- Logo et nom -->
+    <a class="navbar-brand" routerLink="/dashboard">
+      <div class="brand-content">
+        <div class="brand-icon">
+          <i class="fas fa-university"></i>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">EGA Bank</span>
+          <span class="brand-tagline">Banking Solutions</span>
+        </div>
+      </div>
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+    <!-- Bouton toggle pour mobile -->
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
+    <!-- Contenu de la navbar -->
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav me-auto">
+      <!-- Navigation principale -->
+      <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
-            <i class="fas fa-home me-1"></i>Tableau de bord
+            <div class="nav-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="nav-text">Dashboard</span>
+            <span class="nav-indicator"></span>
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="/clients" routerLinkActive="active">
-            <i class="fas fa-users me-1"></i>Clients
+            <div class="nav-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <span class="nav-text">Clients</span>
+            <span class="nav-indicator"></span>
+            <span *ngIf="hasNewClients" class="notification-badge">{{ newClientsCount }}</span>
           </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link" routerLink="/accounts" routerLinkActive="active">
-            <i class="fas fa-wallet me-1"></i>Comptes
+            <div class="nav-icon">
+              <i class="fas fa-credit-card"></i>
+            </div>
+            <span class="nav-text">Comptes</span>
+            <span class="nav-indicator"></span>
           </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link" routerLink="/transactions" routerLinkActive="active">
-            <i class="fas fa-exchange-alt me-1"></i>Transactions
+            <div class="nav-icon">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <span class="nav-text">Transactions</span>
+            <span class="nav-indicator"></span>
           </a>
         </li>
       </ul>
 
-      <div class="d-flex align-items-center" *ngIf="currentUser">
-        <span class="text-white me-3">
-          <i class="fas fa-user-circle me-2"></i>{{ currentUser.username }}
-        </span>
-        <button class="btn btn-outline-light btn-sm" (click)="logout()">
-          <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+      <!-- Section utilisateur -->
+      <div class="user-section" *ngIf="currentUser">
+        <div class="user-info">
+          <div class="user-avatar" [style.background]="getUserColor()">
+            {{ getUserInitial() }}
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ currentUser.username }}</span>
+            <span class="user-role">{{ currentUser.role || 'Utilisateur' }}</span>
+          </div>
+          <div class="user-dropdown">
+            <button class="dropdown-toggle" (click)="toggleDropdown()">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-menu" [class.show]="showDropdown">
+              <a class="dropdown-item" routerLink="/profile">
+                <i class="fas fa-user-cog"></i>
+                <span>Mon profil</span>
+              </a>
+              <a class="dropdown-item" routerLink="/settings">
+                <i class="fas fa-cog"></i>
+                <span>Paramètres</span>
+              </a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item logout-item" (click)="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button class="logout-btn" (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
     </div>
   </div>
 </nav>
-</body>
-</html>
+
+<!-- Toast de notification -->
+<div class="notification-toast" [class.show]="showNotification">
+  <div class="toast-content">
+    <i class="fas fa-check-circle"></i>
+    <span>Déconnexion réussie. Redirection...</span>
+  </div>
+</div>

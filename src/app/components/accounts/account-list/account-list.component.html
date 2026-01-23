@@ -1,10 +1,331 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<app-navbar></app-navbar>
+
+<div class="accounts-container">
+  <!-- En-tête avec statistiques -->
+  <div class="accounts-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+    </div>
+    
+    <div class="header-content">
+      <div class="header-title-section">
+        <div class="title-icon">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div class="title-text">
+          <h1>Gestion des Comptes</h1>
+          <p class="subtitle">Visualisez et gérez tous les comptes bancaires</p>
+        </div>
+      </div>
+      
+      <div class="header-stats">
+        <div class="stat-card total">
+          <div class="stat-icon">
+            <i class="fas fa-credit-card"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ accounts.length }}</span>
+            <span class="stat-label">Comptes totaux</span>
+          </div>
+        </div>
+        
+        <div class="stat-card savings">
+          <div class="stat-icon">
+            <i class="fas fa-piggy-bank"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ getCountByType('COMPTE_EPARGNE') }}</span>
+            <span class="stat-label">Comptes épargne</span>
+          </div>
+        </div>
+        
+        <div class="stat-card current">
+          <div class="stat-icon">
+            <i class="fas fa-money-check-alt"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value">{{ getCountByType('COMPTE_COURANT') }}</span>
+            <span class="stat-label">Comptes courants</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="accounts-content">
+    <!-- Barre d'actions -->
+    <div class="action-bar">
+      <div class="search-section">
+        <div class="search-input-group">
+          <i class="fas fa-search search-icon"></i>
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Rechercher un compte..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()">
+          <button class="search-clear" *ngIf="searchTerm" (click)="clearSearch()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        
+        <div class="filter-buttons">
+          <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="filterAccounts('all')">
+            Tous
+          </button>
+          <button class="filter-btn" [class.active]="activeFilter === 'current'" (click)="filterAccounts('current')">
+            Courants
+          </button>
+          <button class="filter-btn" [class.active]="activeFilter === 'savings'" (click)="filterAccounts('savings')">
+            Épargne
+          </button>
+        </div>
+      </div>
+      
+      <a routerLink="/accounts/new" class="add-account-btn">
+        <i class="fas fa-plus-circle"></i>
+        <span>Nouveau Compte</span>
+      </a>
+    </div>
+
+    <!-- Messages d'alerte -->
+    <div class="alerts-container">
+      <div *ngIf="errorMessage" class="alert-card error">
+        <div class="alert-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Erreur</h4>
+          <p>{{ errorMessage }}</p>
+        </div>
+        <button class="alert-close" (click)="errorMessage = ''">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div *ngIf="successMessage" class="alert-card success">
+        <div class="alert-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="alert-content">
+          <h4>Succès</h4>
+          <p>{{ successMessage }}</p>
+        </div>
+        <button class="alert-close" (click)="successMessage = ''">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- État de chargement -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">
+          <h3>Chargement des comptes</h3>
+          <p>Veuillez patienter pendant le chargement des données...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- État vide -->
+    <div *ngIf="!isLoading && filteredAccounts.length === 0 && !errorMessage" class="empty-state">
+      <div class="empty-icon">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <div class="empty-content">
+        <h3>Aucun compte trouvé</h3>
+        <p *ngIf="searchTerm">Aucun résultat pour "{{ searchTerm }}"</p>
+        <p *ngIf="!searchTerm">Commencez par créer votre premier compte bancaire</p>
+        <a routerLink="/accounts/new" class="empty-action-btn">
+          <i class="fas fa-plus-circle me-2"></i>
+          Créer un compte
+        </a>
+      </div>
+    </div>
+
+    <!-- Grille des comptes -->
+    <div *ngIf="!isLoading && filteredAccounts.length > 0" class="accounts-grid">
+      <div class="grid-header">
+        <h3>Comptes Bancaires</h3>
+        <p class="grid-count">{{ filteredAccounts.length }} compte(s) trouvé(s)</p>
+      </div>
+      
+      <div class="cards-grid">
+        <div *ngFor="let account of filteredAccounts" 
+             class="account-card"
+             [class.savings]="account.typeCompte === 'COMPTE_EPARGNE'"
+             [class.current]="account.typeCompte === 'COMPTE_COURANT'">
+          
+          <!-- En-tête de la carte -->
+          <div class="card-header">
+            <div class="account-type">
+              <div class="type-icon">
+                <i class="fas" [class.fa-piggy-bank]="account.typeCompte === 'COMPTE_EPARGNE'"
+                                 [class.fa-money-check-alt]="account.typeCompte === 'COMPTE_COURANT'"></i>
+              </div>
+              <span class="type-label">
+                {{ account.typeCompte === 'COMPTE_EPARGNE' ? 'Compte Épargne' : 'Compte Courant' }}
+              </span>
+            </div>
+            
+            <div class="account-status" [class.active]="isAccountActive(account)">
+              {{ isAccountActive(account) ? '● Actif' : '○ Inactif' }}
+            </div>
+          </div>
+          
+          <!-- Corps de la carte -->
+          <div class="card-body">
+            <!-- Numéro de compte -->
+            <div class="account-number-section">
+              <label class="section-label">Numéro de compte</label>
+              <div class="account-number">
+                <i class="fas fa-hashtag"></i>
+                <span class="number-value">{{ account.numeroCompte }}</span>
+                <button class="copy-btn" (click)="copyAccountNumber(account.numeroCompte)">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Informations client -->
+            <div class="client-section">
+              <label class="section-label">Titulaire</label>
+              <div class="client-info">
+                <div class="client-avatar">
+                  <div class="avatar-circle" [style.background]="getClientColor(account)">
+                    {{ getClientInitials(account) }}
+                  </div>
+                </div>
+                <div class="client-details">
+                  <h4>{{ account.proprietaireNom || 'Non spécifié' }}</h4>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Détails du compte -->
+            <div class="account-details">
+              <div class="detail-item">
+                <div class="detail-label">
+                  <i class="fas fa-calendar"></i>
+                  <span>Création</span>
+                </div>
+                <div class="detail-value">{{ account.dateCreation | date:'dd/MM/yyyy' }}</div>
+              </div>
+              
+              <div class="detail-item">
+                <div class="detail-label">
+                  <i class="fas fa-percent"></i>
+                  <span>Taux</span>
+                </div>
+                <div class="detail-value">{{ getInterestRate(account) }}%</div>
+              </div>
+              
+              <div class="detail-item">
+                <div class="detail-label">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Statut</span>
+                </div>
+                <div class="detail-value">{{ getAccountStatus(account) }}</div>
+              </div>
+            </div>
+            
+            <!-- Solde -->
+            <div class="balance-section">
+              <div class="balance-header">
+                <label class="section-label">Solde disponible</label>
+                <div class="currency">FCFA</div>
+              </div>
+              <div class="balance-amount">
+                {{ account.solde | number:'1.0-0' }}
+              </div>
+              <div class="balance-progress">
+                <div class="progress-bar" [style.width.%]="getBalancePercentage(account)"></div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Pied de la carte -->
+          <div class="card-footer">
+            <div class="action-buttons">
+              <button class="action-btn details-btn" [routerLink]="['/accounts', account.id]">
+                <i class="fas fa-eye"></i>
+                <span>Détails</span>
+              </button>
+              <button class="action-btn delete-btn" (click)="confirmDelete(account)">
+                <i class="fas fa-trash"></i>
+                <span>Supprimer</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistiques globales -->
+    <div *ngIf="!isLoading && filteredAccounts.length > 0" class="global-stats">
+      <div class="stats-card">
+        <div class="stats-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="stats-content">
+          <span class="stats-value">{{ getTotalBalance() | number:'1.0-0' }} FCFA</span>
+          <span class="stats-label">Solde total</span>
+        </div>
+      </div>
+      
+      <div class="stats-card">
+        <div class="stats-icon">
+          <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="stats-content">
+          <span class="stats-value">{{ getAverageBalance() | number:'1.0-0' }} FCFA</span>
+          <span class="stats-label">Solde moyen</span>
+        </div>
+      </div>
+      
+      <div class="stats-card">
+        <div class="stats-icon">
+          <i class="fas fa-calendar-plus"></i>
+        </div>
+        <div class="stats-content">
+          <span class="stats-value">{{ newAccountsThisMonth }}</span>
+          <span class="stats-label">Nouveaux ce mois</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de suppression -->
+<div *ngIf="showDeleteModal" class="modal-overlay">
+  <div class="modal-container">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+        Confirmer la suppression
+      </h3>
+      <button class="modal-close" (click)="closeDeleteModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer le compte <strong>{{ accountToDelete?.numeroCompte }}</strong> ?</p>
+      <p class="text-muted">Type : {{ accountToDelete?.typeCompte === 'COMPTE_EPARGNE' ? 'Compte Épargne' : 'Compte Courant' }}</p>
+      <p class="text-muted">Titulaire : {{ accountToDelete?.proprietaireNom }}</p>
+      <p class="text-danger"><strong>Attention :</strong> Cette action est irréversible.</p>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="closeDeleteModal()">
+        Annuler
+      </button>
+      <button class="btn-delete" (click)="deleteAccount()">
+        <i class="fas fa-trash me-2"></i>
+        Supprimer
+      </button>
+    </div>
+  </div>
+</div>
