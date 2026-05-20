@@ -329,39 +329,52 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   // Méthode pour calculer les statistiques hebdomadaires
+  // Méthode pour calculer les statistiques hebdomadaires - VERSION CORRIGÉE
   calculateWeeklyStats(): void {
-    this.transactionService.getRecentTransactions(100).subscribe({
+    // Charger toutes les données en parallèle
+    this.loadWeeklyTransactions();
+    this.loadWeeklyClients();
+    this.loadWeeklyAccounts();
+  }
+
+// Charger les transactions de la semaine
+  private loadWeeklyTransactions(): void {
+    this.transactionService.getRecentTransactions(500).subscribe({
       next: (transactions) => {
-        this.initializeWeeklyData();
         this.processTransactionsForWeeklyData(transactions);
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Erreur chargement transactions pour statistiques:', error);
+        console.error('Erreur chargement transactions:', error);
       }
     });
+  }
 
+// Charger les clients de la semaine
+  private loadWeeklyClients(): void {
     this.clientService.getAllClients().subscribe({
       next: (clients) => {
         this.processClientsForWeeklyData(clients);
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Erreur chargement clients pour statistiques:', error);
+        console.error('Erreur chargement clients:', error);
       }
     });
+  }
 
+// Charger les comptes de la semaine
+  private loadWeeklyAccounts(): void {
     this.accountService.getAllAccounts().subscribe({
       next: (accounts) => {
         this.processAccountsForWeeklyData(accounts);
         this.cdr.detectChanges();
       },
       error: (error) => {
-        console.error('Erreur chargement comptes pour statistiques:', error);
+        console.error('Erreur chargement comptes:', error);
       }
     });
   }
-
   // Initialiser les données hebdomadaires à zéro
   private initializeWeeklyData(): void {
     this.clientsWeeklyData.forEach(d => d.value = 0);
@@ -369,75 +382,171 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.revenueWeeklyData.forEach(d => d.value = 0);
   }
 
-  // Traiter les transactions pour les revenus hebdomadaires
+  // ===== TRAITEMENT DES TRANSACTIONS - VERSION CORRIGÉE =====
   private processTransactionsForWeeklyData(transactions: Transaction[]): void {
+    // Réinitialiser les données
+    this.revenueWeeklyData = [
+      { day: 'Lundi', value: 0 },
+      { day: 'Mardi', value: 0 },
+      { day: 'Mercredi', value: 0 },
+      { day: 'Jeudi', value: 0 },
+      { day: 'Vendredi', value: 0 },
+      { day: 'Samedi', value: 0 },
+      { day: 'Dimanche', value: 0 }
+    ];
+
+    // Date d'aujourd'hui à minuit
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    
+    today.setHours(0, 0, 0, 0);
+
+    // Calculer les dates pour les 7 derniers jours (de J-6 à aujourd'hui)
+    const last7Days: Date[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      last7Days.push(date);
+    }
+
+    // Traiter chaque transaction
     transactions.forEach(transaction => {
       const dateValue = transaction.date || transaction.dateTransaction;
-      if (dateValue) {
-        const transDate = new Date(dateValue as string);
-        const daysDiff = this.getDaysDifference(today, transDate);
-        
-        if (daysDiff >= -6 && daysDiff <= 0) {
-          const dayIndex = (dayOfWeek + daysDiff + 7) % 7;
-          const amount = transaction.amount || transaction.montant || 0;
-          this.revenueWeeklyData[dayIndex].value += amount;
-        }
+      if (!dateValue) return;
+
+      const transDate = new Date(dateValue as string);
+      transDate.setHours(0, 0, 0, 0);
+
+      // Trouver l'index du jour correspondant
+      const dayIndex = last7Days.findIndex(d => d.getTime() === transDate.getTime());
+
+      if (dayIndex !== -1) {
+        const amount = transaction.amount || transaction.montant || 0;
+        this.revenueWeeklyData[dayIndex].value += amount;
       }
+    });
+
+    // Mettre à jour les labels avec les vrais jours de la semaine
+    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    this.revenueWeeklyData.forEach((item, index) => {
+      const date = last7Days[index];
+      const dayOfWeek = date.getDay();
+      item.day = dayNames[dayOfWeek].substring(0, 1); // Première lettre uniquement
     });
 
     // Calculer la moyenne quotidienne
     const totalRevenue = this.revenueWeeklyData.reduce((sum, d) => sum + d.value, 0);
     this.dailyRevenueThisWeek = totalRevenue > 0 ? Math.floor(totalRevenue / 7) : 0;
+
+    console.log('Revenue Weekly Data:', this.revenueWeeklyData);
   }
 
-  // Traiter les clients pour les données hebdomadaires
+// ===== TRAITEMENT DES CLIENTS - VERSION CORRIGÉE =====
   private processClientsForWeeklyData(clients: Client[]): void {
+    // Réinitialiser les données
+    this.clientsWeeklyData = [
+      { day: 'Lundi', value: 0 },
+      { day: 'Mardi', value: 0 },
+      { day: 'Mercredi', value: 0 },
+      { day: 'Jeudi', value: 0 },
+      { day: 'Vendredi', value: 0 },
+      { day: 'Samedi', value: 0 },
+      { day: 'Dimanche', value: 0 }
+    ];
+
+    // Date d'aujourd'hui à minuit
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    
+    today.setHours(0, 0, 0, 0);
+
+    // Calculer les dates pour les 7 derniers jours
+    const last7Days: Date[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      last7Days.push(date);
+    }
+
+    // Traiter chaque client
     clients.forEach(client => {
-      if (client.dateCreation) {
-        const createdDate = new Date(client.dateCreation);
-        const daysDiff = this.getDaysDifference(today, createdDate);
-        
-        if (daysDiff >= -6 && daysDiff <= 0) {
-          const dayIndex = (dayOfWeek + daysDiff + 7) % 7;
-          this.clientsWeeklyData[dayIndex].value++;
-        }
+      if (!client.dateCreation) return;
+
+      const createdDate = new Date(client.dateCreation as string);
+      createdDate.setHours(0, 0, 0, 0);
+
+      // Trouver l'index du jour correspondant
+      const dayIndex = last7Days.findIndex(d => d.getTime() === createdDate.getTime());
+
+      if (dayIndex !== -1) {
+        this.clientsWeeklyData[dayIndex].value++;
       }
     });
 
+    // Mettre à jour les labels avec les vrais jours de la semaine
+    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    this.clientsWeeklyData.forEach((item, index) => {
+      const date = last7Days[index];
+      const dayOfWeek = date.getDay();
+      item.day = dayNames[dayOfWeek].substring(0, 1);
+    });
+
+    // Calculer le total de nouveaux clients cette semaine
     this.newClientsThisWeek = this.clientsWeeklyData.reduce((sum, d) => sum + d.value, 0);
+
+    console.log('Clients Weekly Data:', this.clientsWeeklyData);
   }
 
-  // Traiter les comptes pour les données hebdomadaires
+// ===== TRAITEMENT DES COMPTES - VERSION CORRIGÉE =====
   private processAccountsForWeeklyData(accounts: any[]): void {
+    // Réinitialiser les données
+    this.accountsWeeklyData = [
+      { day: 'Lundi', value: 0 },
+      { day: 'Mardi', value: 0 },
+      { day: 'Mercredi', value: 0 },
+      { day: 'Jeudi', value: 0 },
+      { day: 'Vendredi', value: 0 },
+      { day: 'Samedi', value: 0 },
+      { day: 'Dimanche', value: 0 }
+    ];
+
+    // Date d'aujourd'hui à minuit
     const today = new Date();
-    const dayOfWeek = today.getDay();
-    
+    today.setHours(0, 0, 0, 0);
+
+    // Calculer les dates pour les 7 derniers jours
+    const last7Days: Date[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      last7Days.push(date);
+    }
+
+    // Traiter chaque compte
     accounts.forEach(account => {
-      if (account.dateCreation) {
-        const createdDate = new Date(account.dateCreation);
-        const daysDiff = this.getDaysDifference(today, createdDate);
-        
-        if (daysDiff >= -6 && daysDiff <= 0) {
-          const dayIndex = (dayOfWeek + daysDiff + 7) % 7;
-          this.accountsWeeklyData[dayIndex].value++;
-        }
+      if (!account.dateCreation) return;
+
+      const createdDate = new Date(account.dateCreation as string);
+      createdDate.setHours(0, 0, 0, 0);
+
+      // Trouver l'index du jour correspondant
+      const dayIndex = last7Days.findIndex(d => d.getTime() === createdDate.getTime());
+
+      if (dayIndex !== -1) {
+        this.accountsWeeklyData[dayIndex].value++;
       }
     });
 
+    // Mettre à jour les labels avec les vrais jours de la semaine
+    const dayNames = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    this.accountsWeeklyData.forEach((item, index) => {
+      const date = last7Days[index];
+      const dayOfWeek = date.getDay();
+      item.day = dayNames[dayOfWeek].substring(0, 1);
+    });
+
+    // Calculer le total de nouveaux comptes cette semaine
     this.newAccountsThisWeek = this.accountsWeeklyData.reduce((sum, d) => sum + d.value, 0);
+
+    console.log('Accounts Weekly Data:', this.accountsWeeklyData);
   }
 
-  // Calculer la différence en jours entre deux dates
-  private getDaysDifference(date1: Date, date2: Date): number {
-    const oneDay = 24 * 60 * 60 * 1000;
-    return Math.floor((date1.getTime() - date2.getTime()) / oneDay);
-  }
 
   // Calculer les statistiques d'aujourd'hui
   calculateTodayStats(): void {
