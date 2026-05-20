@@ -5,11 +5,11 @@ Voici une version stylisée et plus professionnelle de ton README, avec une mise
 
 <div align="center">
 
-[![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)]
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)]
-[![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)]
-[![Chart.js](https://img.shields.io/badge/Chart.js-4.5-orange?logo=javascript)]
-[![License](https://img.shields.io/badge/license-MIT-green)]
+![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
+![Chart.js](https://img.shields.io/badge/Chart.js-4.5-orange?logo=javascript)
+![License](https://img.shields.io/badge/license-MIT-green)
 
 </div>
 
