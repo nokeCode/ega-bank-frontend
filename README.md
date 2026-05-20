@@ -27,7 +27,18 @@
 > Gérez vos clients, comptes, transactions et suivez vos performances financières en temps réel via un tableau de bord intuitif et interactif.
 
 ---
+---
 
+## 🔗 Backend
+
+Ce frontend est conçu pour fonctionner avec l'API **EgaBank Backend** (Spring Boot).
+
+- **Repository :** [github.com/nokeCode/ega-bank-backend](https://github.com/nokeCode/ega-bank-backend.git)
+- **Technos :** Java 17, Spring Boot 3, Spring Security, JWT, PostgreSQL
+
+> ⚠️ Démarre le backend avant le frontend pour que toutes les fonctionnalités soient disponibles.
+
+---
 ## ✨ Fonctionnalités principales
 
 - 🔐 **Authentification** complète (login / inscription) avec token JWT
