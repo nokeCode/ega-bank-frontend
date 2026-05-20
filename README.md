@@ -1,6 +1,5 @@
-Voici une version stylisée et plus professionnelle de ton README, avec une mise en page claire, des badges, des émojis et une structure améliorée :
 
-```markdown
+
 # 💳 EgaBankFrontend
 
 <div align="center">
