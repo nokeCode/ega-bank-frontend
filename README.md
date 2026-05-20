@@ -1,59 +1,142 @@
-# EgaBankFrontend
+Voici une version stylisée et plus professionnelle de ton README, avec une mise en page claire, des badges, des émojis et une structure améliorée :
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
+```markdown
+# 💳 EgaBankFrontend
 
-## Development server
+![Angular](https://img.shields.io/badge/Angular-21-red?logo=angular)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5-purple?logo=bootstrap)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-To start a local development server, run:
+> Application frontend d’une solution bancaire moderne, développée avec **Angular 21**.  
+> Gérez vos clients, comptes, transactions et suivez vos performances financières en temps réel.
 
-```bash
-ng serve
-```
+---
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## ✨ Fonctionnalités principales
 
-## Code scaffolding
+- 🔐 **Authentification** complète (login / inscription)
+- 📊 **Tableau de bord interactif** : statistiques, graphiques de performance, transactions récentes
+- 👥 **Gestion des clients** : liste, création, modification
+- 💰 **Gestion des comptes** : consultation et ouverture de comptes
+- 💸 **Gestion des transactions** : historique et enregistrement
+- 🛡️ **Sécurité avancée** : guards d’authentification + intercepteur HTTP
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## 📸 Aperçu de l’interface
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+| 🔑 Connexion | 📝 Inscription | 💼 Comptes |
+|---|---|---|
+| ![Connexion](./screen_shot/logint2.png) | ![Inscription](./screen_shot/register.png) | ![Comptes](./screen_shot/page_accounts.png) |
 
-```bash
-ng generate --help
-```
+| 💸 Transactions | 📈 Tableau de bord |
+|---|---|
+| ![Transactions](./screen_shot/page_transaction.png) | ![Tableau de bord](./screen_shot/landing1.png) |
 
-## Building
+> ⚠️ Les captures sont situées dans le dossier [`screen_shot/`](./screen_shot).
 
-To build the project run:
+---
 
-```bash
-ng build
-```
+## 🚀 Installation et exécution
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### 1. Cloner le projet
 
 ```bash
-ng e2e
+git clone https://github.com/ton-repo/EgaBankFrontend.git
+cd EgaBankFrontend
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+### 2. Installer les dépendances
 
-## Additional Resources
+```bash
+npm install
+```
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### 3. Démarrer l’application
+
+```bash
+npm start
+```
+
+Puis ouvrir : [http://localhost:4200/](http://localhost:4200/)
+
+> 💡 Pensez à configurer l’URL de l’API backend dans les services si nécessaire.
+
+---
+
+## 📜 Scripts disponibles
+
+| Commande | Description |
+|----------|-------------|
+| `npm start` | Lance le serveur de développement |
+| `npm run build` | Génère le build de production |
+| `npm test` | Exécute les tests unitaires |
+
+---
+
+## 📁 Structure du projet
+
+```
+src/app/
+├── components/          # Composants UI
+│   ├── login
+│   ├── register
+│   ├── dashboard
+│   ├── navbar
+│   ├── clients
+│   ├── accounts
+│   └── transactions
+├── services/            # Appels API et logique métier
+├── guards/              # Protection des routes
+├── interceptors/        # Ajout automatique du token
+├── models/              # Interfaces TypeScript
+└── app.routes.ts        # Configuration des routes
+```
+
+---
+
+## 🧱 Stack technique
+
+| Technologie         | Utilisation                         |
+|---------------------|--------------------------------------|
+| Angular 21          | Framework principal                  |
+| Angular Material    | Composants UI                        |
+| Bootstrap 5         | Grille et style rapide               |
+| Chart.js            | Graphiques du tableau de bord        |
+| FontAwesome         | Icônes                               |
+| RxJS                | Programmation réactive               |
+| TypeScript          | Typage statique                      |
+
+---
+
+## 🔐 Sécurité et bonnes pratiques
+
+- ✅ `AuthInterceptor` : ajoute automatiquement le token JWT aux requêtes HTTP.
+- ✅ Guards : empêchent l’accès aux routes sans authentification.
+- ✅ Routes protégées : dashboard, clients, comptes, transactions.
+
+---
+
+## 📌 Notes complémentaires
+
+- Les captures d’écran reflètent l’état actuel du projet.
+- L’application est prête à être connectée à une API REST backend.
+
+---
+
+## 👨‍💻 Auteur
+
+Projet développé dans le cadre d’une solution bancaire moderne.  
+📫 Pour toute question ou suggestion, n’hésitez pas à ouvrir une *issue* ou à me contacter.
+
+---
+
+## 📄 Licence
+
+MIT — libre d’utilisation et de modification.
+```
+
+---
+
+Cette version est plus structurée, visuelle et professionnelle. Elle met en avant la stack technique, la sécurité, et facilite la lecture grâce aux tableaux, badges et emojis. Tu peux la copier-coller directement dans ton fichier `README.md`.
