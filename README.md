@@ -142,23 +142,9 @@ src/app/
 ├── services/            # Appels API et logique métier
 ├── guards/              # Protection des routes
 
+
 ## 📁 Structure du projet
 
-```
-src/app/
-├── components/          # Composants UI
-│   ├── login
-│   ├── register
-│   ├── dashboard
-│   ├── navbar
-│   ├── clients
-│   ├── accounts
-│   └── transactions
-├── services/            # Appels API et logique métier
-├── guards/              # Protection des routes
-├── interceptors/        # Ajout automatique du token
-├── models/              # Interfaces TypeScript
-└── app.routes.ts        # Configuration des routes
 ```
 
 ---
@@ -233,4 +219,4 @@ Pour toute question ou problème :
 
 Ce projet est sous licence **MIT** — libre d'utilisation, modification et distribution.
 
-**Développé avec ❤️ pour moderniser le secteur bancaire**
+**Développé par Germain AHOBLI pour moderniser le secteur bancaire**
